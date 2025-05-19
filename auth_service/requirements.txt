@@ -1,0 +1,6 @@
+grpcio
+grpcio-tools
+pymongo
+passlib[bcrypt]
+PyJWT
+python-dotenv

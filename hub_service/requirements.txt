@@ -1,0 +1,4 @@
+grpcio
+grpcio-tools
+PyJWT
+python-dotenv

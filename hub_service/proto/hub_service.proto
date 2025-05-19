@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package hubservice;
+
+service HubService {
+  // Verifies the token and grants access to the central hub
+  rpc EnterHub(EnterHubRequest) returns (EnterHubResponse);
+  // Logs the user out by invalidating the token
+  rpc Logout(LogoutRequest) returns (LogoutResponse);
+}
+
+message EnterHubRequest {
+  string token = 1;
+}
+
+message EnterHubResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message LogoutRequest {
+  string token = 1;
+}
+
+message LogoutResponse {
+  bool success = 1;
+  string message = 2;
+}
