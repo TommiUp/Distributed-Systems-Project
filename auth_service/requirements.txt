@@ -2,5 +2,6 @@ grpcio
 grpcio-tools
 pymongo
 passlib[bcrypt]
+bcrypt
 PyJWT
 python-dotenv

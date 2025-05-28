@@ -1,0 +1,4 @@
+grpcio>=1.71
+grpcio-tools>=1.71
+motor>=3.4
+pyjwt
