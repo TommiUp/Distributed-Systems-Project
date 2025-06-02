@@ -62,7 +62,8 @@ class ChatService(svc.ChatServiceServicer):
                         continue
                     hub_members[old].discard(user)
                     await broadcast(old, pb.ServerEnvelope(notice=f"{user} left {old}"), exclude=user)
-                    hub_channel[user], hub_members[new].add(user)
+                    hub_channel[user] = new
+                    hub_members[new].add(user)
                     await send_q.put(pb.ServerEnvelope(notice=f"{'Joined' if kind=='join' else 'Returned to'} {new}"))
                     await broadcast(new, pb.ServerEnvelope(notice=f"{user} joined {new}"), exclude=user)
                     await self._history(user, new, send_q)
