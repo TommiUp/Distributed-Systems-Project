@@ -39,12 +39,58 @@ class ChatServiceStub(object):
                 request_serializer=chat__service__pb2.ClientEnvelope.SerializeToString,
                 response_deserializer=chat__service__pb2.ServerEnvelope.FromString,
                 _registered_method=True)
+        self.SubscribeChat = channel.unary_stream(
+                '/chatservice.ChatService/SubscribeChat',
+                request_serializer=chat__service__pb2.Init.SerializeToString,
+                response_deserializer=chat__service__pb2.ServerEnvelope.FromString,
+                _registered_method=True)
+        self.SendChannelMsg = channel.unary_unary(
+                '/chatservice.ChatService/SendChannelMsg',
+                request_serializer=chat__service__pb2.ChannelMsg.SerializeToString,
+                response_deserializer=chat__service__pb2.Empty.FromString,
+                _registered_method=True)
+        self.SendPrivateMsg = channel.unary_unary(
+                '/chatservice.ChatService/SendPrivateMsg',
+                request_serializer=chat__service__pb2.PrivateMsg.SerializeToString,
+                response_deserializer=chat__service__pb2.Empty.FromString,
+                _registered_method=True)
+        self.GetHistory = channel.unary_unary(
+                '/chatservice.ChatService/GetHistory',
+                request_serializer=chat__service__pb2.HistoryReq.SerializeToString,
+                response_deserializer=chat__service__pb2.HistoryRes.FromString,
+                _registered_method=True)
 
 
 class ChatServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def Chat(self, request_iterator, context):
+        """── CLI / desktop ───────────────────────
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SubscribeChat(self, request, context):
+        """── Browser (gRPC-Web) ──────────────────────────────
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SendChannelMsg(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SendPrivateMsg(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetHistory(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -57,6 +103,26 @@ def add_ChatServiceServicer_to_server(servicer, server):
                     servicer.Chat,
                     request_deserializer=chat__service__pb2.ClientEnvelope.FromString,
                     response_serializer=chat__service__pb2.ServerEnvelope.SerializeToString,
+            ),
+            'SubscribeChat': grpc.unary_stream_rpc_method_handler(
+                    servicer.SubscribeChat,
+                    request_deserializer=chat__service__pb2.Init.FromString,
+                    response_serializer=chat__service__pb2.ServerEnvelope.SerializeToString,
+            ),
+            'SendChannelMsg': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendChannelMsg,
+                    request_deserializer=chat__service__pb2.ChannelMsg.FromString,
+                    response_serializer=chat__service__pb2.Empty.SerializeToString,
+            ),
+            'SendPrivateMsg': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendPrivateMsg,
+                    request_deserializer=chat__service__pb2.PrivateMsg.FromString,
+                    response_serializer=chat__service__pb2.Empty.SerializeToString,
+            ),
+            'GetHistory': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetHistory,
+                    request_deserializer=chat__service__pb2.HistoryReq.FromString,
+                    response_serializer=chat__service__pb2.HistoryRes.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -86,6 +152,114 @@ class ChatService(object):
             '/chatservice.ChatService/Chat',
             chat__service__pb2.ClientEnvelope.SerializeToString,
             chat__service__pb2.ServerEnvelope.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SubscribeChat(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/chatservice.ChatService/SubscribeChat',
+            chat__service__pb2.Init.SerializeToString,
+            chat__service__pb2.ServerEnvelope.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SendChannelMsg(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/chatservice.ChatService/SendChannelMsg',
+            chat__service__pb2.ChannelMsg.SerializeToString,
+            chat__service__pb2.Empty.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SendPrivateMsg(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/chatservice.ChatService/SendPrivateMsg',
+            chat__service__pb2.PrivateMsg.SerializeToString,
+            chat__service__pb2.Empty.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetHistory(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/chatservice.ChatService/GetHistory',
+            chat__service__pb2.HistoryReq.SerializeToString,
+            chat__service__pb2.HistoryRes.FromString,
             options,
             channel_credentials,
             insecure,

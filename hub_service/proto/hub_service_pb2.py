@@ -24,21 +24,27 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11hub_service.proto\x12\nhubservice\" \n\x0f\x45nterHubRequest\x12\r\n\x05token\x18\x01 \x01(\t\"4\n\x10\x45nterHubResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"\x1e\n\rLogoutRequest\x12\r\n\x05token\x18\x01 \x01(\t\"2\n\x0eLogoutResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t2\x94\x01\n\nHubService\x12\x45\n\x08\x45nterHub\x12\x1b.hubservice.EnterHubRequest\x1a\x1c.hubservice.EnterHubResponse\x12?\n\x06Logout\x12\x19.hubservice.LogoutRequest\x1a\x1a.hubservice.LogoutResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11hub_service.proto\x12\nhubservice\"\x07\n\x05\x45mpty\"#\n\x07\x43hannel\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\"<\n\x13\x43hannelListResponse\x12%\n\x08\x63hannels\x18\x01 \x03(\x0b\x32\x13.hubservice.Channel\" \n\x0f\x45nterHubRequest\x12\r\n\x05token\x18\x01 \x01(\t\"4\n\x10\x45nterHubResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"\x1e\n\rLogoutRequest\x12\r\n\x05token\x18\x01 \x01(\t\"2\n\x0eLogoutResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t2\xd8\x01\n\nHubService\x12\x45\n\x08\x45nterHub\x12\x1b.hubservice.EnterHubRequest\x1a\x1c.hubservice.EnterHubResponse\x12?\n\x06Logout\x12\x19.hubservice.LogoutRequest\x1a\x1a.hubservice.LogoutResponse\x12\x42\n\x0cListChannels\x12\x11.hubservice.Empty\x1a\x1f.hubservice.ChannelListResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'hub_service_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_ENTERHUBREQUEST']._serialized_start=33
-  _globals['_ENTERHUBREQUEST']._serialized_end=65
-  _globals['_ENTERHUBRESPONSE']._serialized_start=67
-  _globals['_ENTERHUBRESPONSE']._serialized_end=119
-  _globals['_LOGOUTREQUEST']._serialized_start=121
-  _globals['_LOGOUTREQUEST']._serialized_end=151
-  _globals['_LOGOUTRESPONSE']._serialized_start=153
-  _globals['_LOGOUTRESPONSE']._serialized_end=203
-  _globals['_HUBSERVICE']._serialized_start=206
-  _globals['_HUBSERVICE']._serialized_end=354
+  _globals['_EMPTY']._serialized_start=33
+  _globals['_EMPTY']._serialized_end=40
+  _globals['_CHANNEL']._serialized_start=42
+  _globals['_CHANNEL']._serialized_end=77
+  _globals['_CHANNELLISTRESPONSE']._serialized_start=79
+  _globals['_CHANNELLISTRESPONSE']._serialized_end=139
+  _globals['_ENTERHUBREQUEST']._serialized_start=141
+  _globals['_ENTERHUBREQUEST']._serialized_end=173
+  _globals['_ENTERHUBRESPONSE']._serialized_start=175
+  _globals['_ENTERHUBRESPONSE']._serialized_end=227
+  _globals['_LOGOUTREQUEST']._serialized_start=229
+  _globals['_LOGOUTREQUEST']._serialized_end=259
+  _globals['_LOGOUTRESPONSE']._serialized_start=261
+  _globals['_LOGOUTRESPONSE']._serialized_end=311
+  _globals['_HUBSERVICE']._serialized_start=314
+  _globals['_HUBSERVICE']._serialized_end=530
 # @@protoc_insertion_point(module_scope)

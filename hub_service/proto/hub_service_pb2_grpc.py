@@ -26,7 +26,8 @@ if _version_not_supported:
 
 
 class HubServiceStub(object):
-    """Missing associated documentation comment in .proto file."""
+    """--- Service definition including the new ListChannels RPC ---
+    """
 
     def __init__(self, channel):
         """Constructor.
@@ -44,10 +45,16 @@ class HubServiceStub(object):
                 request_serializer=hub__service__pb2.LogoutRequest.SerializeToString,
                 response_deserializer=hub__service__pb2.LogoutResponse.FromString,
                 _registered_method=True)
+        self.ListChannels = channel.unary_unary(
+                '/hubservice.HubService/ListChannels',
+                request_serializer=hub__service__pb2.Empty.SerializeToString,
+                response_deserializer=hub__service__pb2.ChannelListResponse.FromString,
+                _registered_method=True)
 
 
 class HubServiceServicer(object):
-    """Missing associated documentation comment in .proto file."""
+    """--- Service definition including the new ListChannels RPC ---
+    """
 
     def EnterHub(self, request, context):
         """Verifies the token and grants access to the central hub
@@ -58,6 +65,13 @@ class HubServiceServicer(object):
 
     def Logout(self, request, context):
         """Logs the user out by invalidating the token
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ListChannels(self, request, context):
+        """New RPC: return the list of all available channels
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -76,6 +90,11 @@ def add_HubServiceServicer_to_server(servicer, server):
                     request_deserializer=hub__service__pb2.LogoutRequest.FromString,
                     response_serializer=hub__service__pb2.LogoutResponse.SerializeToString,
             ),
+            'ListChannels': grpc.unary_unary_rpc_method_handler(
+                    servicer.ListChannels,
+                    request_deserializer=hub__service__pb2.Empty.FromString,
+                    response_serializer=hub__service__pb2.ChannelListResponse.SerializeToString,
+            ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
             'hubservice.HubService', rpc_method_handlers)
@@ -85,7 +104,8 @@ def add_HubServiceServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class HubService(object):
-    """Missing associated documentation comment in .proto file."""
+    """--- Service definition including the new ListChannels RPC ---
+    """
 
     @staticmethod
     def EnterHub(request,
@@ -131,6 +151,33 @@ class HubService(object):
             '/hubservice.HubService/Logout',
             hub__service__pb2.LogoutRequest.SerializeToString,
             hub__service__pb2.LogoutResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ListChannels(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/hubservice.HubService/ListChannels',
+            hub__service__pb2.Empty.SerializeToString,
+            hub__service__pb2.ChannelListResponse.FromString,
             options,
             channel_credentials,
             insecure,

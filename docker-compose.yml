@@ -1,6 +1,7 @@
 version: '3.9'
-
 services:
+  # ────────────────────────────────────────────────────────────────────────────
+  #  1) MongoDB (for AuthService + Chat’s message storage)
   mongodb:
     image: mongo:latest
     container_name: mongodb
@@ -9,6 +10,8 @@ services:
     volumes:
       - mongodbdata:/data/db
 
+  # ────────────────────────────────────────────────────────────────────────────
+  #  2) AuthService (Python gRPC on 50051)
   auth_service:
     build: ./auth_service
     container_name: auth_service
@@ -19,6 +22,26 @@ services:
     env_file:
       - .env
 
+  # ────────────────────────────────────────────────────────────────────────────
+  #  3) Envoy in front of AuthService (exposes gRPC-Web at 8081)
+  envoy_auth:
+    image: envoyproxy/envoy:v1.24-latest
+    container_name: envoy_auth
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml:ro
+    command:
+      - "envoy"
+      - "-c"
+      - "/etc/envoy/envoy.yaml"
+      - "--service-cluster"
+      - "auth_envoy"
+    ports:
+      - "8081:8081"
+    depends_on:
+      - auth_service
+
+  # ────────────────────────────────────────────────────────────────────────────
+  #  4) HubService (Python gRPC on 50052)
   hub_service:
     build: ./hub_service
     container_name: hub_service
@@ -29,6 +52,26 @@ services:
     env_file:
       - .env
 
+  # ────────────────────────────────────────────────────────────────────────────
+  #  5) Envoy in front of HubService (exposes gRPC-Web at 8082)
+  envoy_hub:
+    image: envoyproxy/envoy:v1.24-latest
+    container_name: envoy_hub
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml:ro
+    command:
+      - "envoy"
+      - "-c"
+      - "/etc/envoy/envoy.yaml"
+      - "--service-cluster"
+      - "hub_envoy"
+    ports:
+      - "8082:8082"
+    depends_on:
+      - hub_service
+
+  # ────────────────────────────────────────────────────────────────────────────
+  #  6) ChatService (Python gRPC on 50053)
   chat_service:
     build: ./chat_service
     container_name: chat_service
@@ -38,6 +81,41 @@ services:
       - hub_service
     env_file:
       - .env
+
+  # ────────────────────────────────────────────────────────────────────────────
+  #  7) Envoy in front of ChatService (exposes gRPC-Web at 8083)
+  envoy_chat:
+    image: envoyproxy/envoy:v1.24-latest
+    container_name: envoy_chat
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml:ro
+    command:
+      - "envoy"
+      - "-c"
+      - "/etc/envoy/envoy.yaml"
+      - "--service-cluster"
+      - "chat_envoy"
+    ports:
+      - "8083:8083"
+    depends_on:
+      - chat_service
+
+  # ────────────────────────────────────────────────────────────────────────────
+  #  8) Next.js frontend (React + gRPC-Web)
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_AUTH_HOST:  "http://localhost:8081"
+        NEXT_PUBLIC_HUB_HOST:   "http://localhost:8082"
+        NEXT_PUBLIC_CHAT_HOST:  "http://localhost:8083"
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - envoy_auth
+      - envoy_hub
+      - envoy_chat
 
 volumes:
   mongodbdata:

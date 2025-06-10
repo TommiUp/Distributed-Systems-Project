@@ -4,12 +4,21 @@ from concurrent import futures
 import time
 import jwt
 from dotenv import load_dotenv
+
+# Load environment variables (SECRET_KEY, etc.)
 load_dotenv()
 
-from proto.hub_service_pb2 import EnterHubResponse, LogoutResponse
+# Import the newly generated Python modules from proto/
+from proto.hub_service_pb2 import (
+    EnterHubResponse,
+    LogoutResponse,
+    Empty,
+    Channel,
+    ChannelListResponse,
+)
 from proto.hub_service_pb2_grpc import HubServiceServicer, add_HubServiceServicer_to_server
 
-# Same secret key as in user_service so tokens can be validated
+# JWT configuration
 SECRET_KEY = os.getenv("SECRET_KEY", "dev")
 ALGORITHM = "HS256"
 
@@ -22,7 +31,6 @@ class HubService(HubServiceServicer):
         try:
             # Validate the JWT token
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            
             # Add token to active set if valid
             active_tokens.add(token)
 
@@ -40,6 +48,20 @@ class HubService(HubServiceServicer):
             return LogoutResponse(success=True, message="Logout successful. Token invalidated.")
         else:
             return LogoutResponse(success=False, message="Token not found or already logged out.")
+
+    def ListChannels(self, request, context):
+        """
+        Returns a ChannelListResponse containing all available channels.
+        For now, we return two hardcoded channels: "Main" and "testi".
+        You can replace this with a MongoDB query to fetch dynamic channel list.
+        """
+        # You can fetch from a database instead of hard-coding
+        channels = [
+            Channel(id="Main", name="Main Channel"),
+            Channel(id="testi", name="Testi Channel"),
+        ]
+        response = ChannelListResponse(channels=channels)
+        return response
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
