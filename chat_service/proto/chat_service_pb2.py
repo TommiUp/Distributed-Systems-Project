@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12\x63hat_service.proto\x12\x0b\x63hatservice\"\x15\n\x04Init\x12\r\n\x05token\x18\x01 \x01(\t\"+\n\nChannelMsg\x12\x0f\n\x07\x63hannel\x18\x01 \x01(\t\x12\x0c\n\x04\x62ody\x18\x02 \x01(\t\"-\n\nPrivateMsg\x12\x11\n\trecipient\x18\x01 \x01(\t\x12\x0c\n\x04\x62ody\x18\x02 \x01(\t\"\xab\x01\n\x0eServerEnvelope\x12\x10\n\x06notice\x18\x01 \x01(\tH\x00\x12%\n\x02pm\x18\x02 \x01(\x0b\x32\x17.chatservice.PrivateMsgH\x00\x12%\n\x02\x63m\x18\x03 \x01(\x0b\x32\x17.chatservice.ChannelMsgH\x00\x12.\n\x0bhistory_res\x18\x04 \x01(\x0b\x32\x17.chatservice.HistoryResH\x00\x42\t\n\x07payload\"\x1b\n\x0bJoinChannel\x12\x0c\n\x04name\x18\x01 \x01(\t\"\x1c\n\x0cLeaveChannel\x12\x0c\n\x04name\x18\x01 \x01(\t\"\xe2\x01\n\x0e\x43lientEnvelope\x12!\n\x04init\x18\x01 \x01(\x0b\x32\x11.chatservice.InitH\x00\x12(\n\x04join\x18\x02 \x01(\x0b\x32\x18.chatservice.JoinChannelH\x00\x12*\n\x05leave\x18\x03 \x01(\x0b\x32\x19.chatservice.LeaveChannelH\x00\x12%\n\x02\x63m\x18\x04 \x01(\x0b\x32\x17.chatservice.ChannelMsgH\x00\x12%\n\x02pm\x18\x05 \x01(\x0b\x32\x17.chatservice.PrivateMsgH\x00\x42\t\n\x07payload\"\x07\n\x05\x45mpty\",\n\nHistoryReq\x12\x0f\n\x07\x63hannel\x18\x01 \x01(\t\x12\r\n\x05limit\x18\x02 \x01(\x05\"4\n\nHistoryRes\x12&\n\x05items\x18\x01 \x03(\x0b\x32\x17.chatservice.ChannelMsg2\xd4\x02\n\x0b\x43hatService\x12\x44\n\x04\x43hat\x12\x1b.chatservice.ClientEnvelope\x1a\x1b.chatservice.ServerEnvelope(\x01\x30\x01\x12\x41\n\rSubscribeChat\x12\x11.chatservice.Init\x1a\x1b.chatservice.ServerEnvelope0\x01\x12=\n\x0eSendChannelMsg\x12\x17.chatservice.ChannelMsg\x1a\x12.chatservice.Empty\x12=\n\x0eSendPrivateMsg\x12\x17.chatservice.PrivateMsg\x1a\x12.chatservice.Empty\x12>\n\nGetHistory\x12\x17.chatservice.HistoryReq\x1a\x17.chatservice.HistoryResb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12\x63hat_service.proto\x12\x0b\x63hatservice\"\x15\n\x04Init\x12\r\n\x05token\x18\x01 \x01(\t\"7\n\nChannelMsg\x12\x0f\n\x07\x63hannel\x18\x01 \x01(\t\x12\x0c\n\x04\x62ody\x18\x02 \x01(\t\x12\n\n\x02ts\x18\x03 \x01(\x03\"9\n\nPrivateMsg\x12\x11\n\trecipient\x18\x01 \x01(\t\x12\x0c\n\x04\x62ody\x18\x02 \x01(\t\x12\n\n\x02ts\x18\x03 \x01(\x03\"\xab\x01\n\x0eServerEnvelope\x12\x10\n\x06notice\x18\x01 \x01(\tH\x00\x12%\n\x02pm\x18\x02 \x01(\x0b\x32\x17.chatservice.PrivateMsgH\x00\x12%\n\x02\x63m\x18\x03 \x01(\x0b\x32\x17.chatservice.ChannelMsgH\x00\x12.\n\x0bhistory_res\x18\x04 \x01(\x0b\x32\x17.chatservice.HistoryResH\x00\x42\t\n\x07payload\"\x17\n\x07JoinReq\x12\x0c\n\x04name\x18\x01 \x01(\t\"\x07\n\x05\x45mpty\",\n\nHistoryReq\x12\x0f\n\x07\x63hannel\x18\x01 \x01(\t\x12\r\n\x05limit\x18\x02 \x01(\x05\"4\n\nHistoryRes\x12&\n\x05items\x18\x01 \x03(\x0b\x32\x17.chatservice.ChannelMsg\"\x1b\n\x0bJoinChannel\x12\x0c\n\x04name\x18\x01 \x01(\t\"\x1c\n\x0cLeaveChannel\x12\x0c\n\x04name\x18\x01 \x01(\t\"\xe2\x01\n\x0e\x43lientEnvelope\x12!\n\x04init\x18\x01 \x01(\x0b\x32\x11.chatservice.InitH\x00\x12(\n\x04join\x18\x02 \x01(\x0b\x32\x18.chatservice.JoinChannelH\x00\x12*\n\x05leave\x18\x03 \x01(\x0b\x32\x19.chatservice.LeaveChannelH\x00\x12%\n\x02\x63m\x18\x04 \x01(\x0b\x32\x17.chatservice.ChannelMsgH\x00\x12%\n\x02pm\x18\x05 \x01(\x0b\x32\x17.chatservice.PrivateMsgH\x00\x42\t\n\x07payload2\x8d\x03\n\x0b\x43hatService\x12\x44\n\x04\x43hat\x12\x1b.chatservice.ClientEnvelope\x1a\x1b.chatservice.ServerEnvelope(\x01\x30\x01\x12\x41\n\rSubscribeChat\x12\x11.chatservice.Init\x1a\x1b.chatservice.ServerEnvelope0\x01\x12\x37\n\x0bJoinChannel\x12\x14.chatservice.JoinReq\x1a\x12.chatservice.Empty\x12=\n\x0eSendChannelMsg\x12\x17.chatservice.ChannelMsg\x1a\x12.chatservice.Empty\x12=\n\x0eSendPrivateMsg\x12\x17.chatservice.PrivateMsg\x1a\x12.chatservice.Empty\x12>\n\nGetHistory\x12\x17.chatservice.HistoryReq\x1a\x17.chatservice.HistoryResb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -34,23 +34,25 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_INIT']._serialized_start=35
   _globals['_INIT']._serialized_end=56
   _globals['_CHANNELMSG']._serialized_start=58
-  _globals['_CHANNELMSG']._serialized_end=101
-  _globals['_PRIVATEMSG']._serialized_start=103
-  _globals['_PRIVATEMSG']._serialized_end=148
-  _globals['_SERVERENVELOPE']._serialized_start=151
-  _globals['_SERVERENVELOPE']._serialized_end=322
-  _globals['_JOINCHANNEL']._serialized_start=324
-  _globals['_JOINCHANNEL']._serialized_end=351
-  _globals['_LEAVECHANNEL']._serialized_start=353
-  _globals['_LEAVECHANNEL']._serialized_end=381
-  _globals['_CLIENTENVELOPE']._serialized_start=384
-  _globals['_CLIENTENVELOPE']._serialized_end=610
-  _globals['_EMPTY']._serialized_start=612
-  _globals['_EMPTY']._serialized_end=619
-  _globals['_HISTORYREQ']._serialized_start=621
-  _globals['_HISTORYREQ']._serialized_end=665
-  _globals['_HISTORYRES']._serialized_start=667
-  _globals['_HISTORYRES']._serialized_end=719
-  _globals['_CHATSERVICE']._serialized_start=722
-  _globals['_CHATSERVICE']._serialized_end=1062
+  _globals['_CHANNELMSG']._serialized_end=113
+  _globals['_PRIVATEMSG']._serialized_start=115
+  _globals['_PRIVATEMSG']._serialized_end=172
+  _globals['_SERVERENVELOPE']._serialized_start=175
+  _globals['_SERVERENVELOPE']._serialized_end=346
+  _globals['_JOINREQ']._serialized_start=348
+  _globals['_JOINREQ']._serialized_end=371
+  _globals['_EMPTY']._serialized_start=373
+  _globals['_EMPTY']._serialized_end=380
+  _globals['_HISTORYREQ']._serialized_start=382
+  _globals['_HISTORYREQ']._serialized_end=426
+  _globals['_HISTORYRES']._serialized_start=428
+  _globals['_HISTORYRES']._serialized_end=480
+  _globals['_JOINCHANNEL']._serialized_start=482
+  _globals['_JOINCHANNEL']._serialized_end=509
+  _globals['_LEAVECHANNEL']._serialized_start=511
+  _globals['_LEAVECHANNEL']._serialized_end=539
+  _globals['_CLIENTENVELOPE']._serialized_start=542
+  _globals['_CLIENTENVELOPE']._serialized_end=768
+  _globals['_CHATSERVICE']._serialized_start=771
+  _globals['_CHATSERVICE']._serialized_end=1168
 # @@protoc_insertion_point(module_scope)

@@ -44,6 +44,11 @@ class ChatServiceStub(object):
                 request_serializer=chat__service__pb2.Init.SerializeToString,
                 response_deserializer=chat__service__pb2.ServerEnvelope.FromString,
                 _registered_method=True)
+        self.JoinChannel = channel.unary_unary(
+                '/chatservice.ChatService/JoinChannel',
+                request_serializer=chat__service__pb2.JoinReq.SerializeToString,
+                response_deserializer=chat__service__pb2.Empty.FromString,
+                _registered_method=True)
         self.SendChannelMsg = channel.unary_unary(
                 '/chatservice.ChatService/SendChannelMsg',
                 request_serializer=chat__service__pb2.ChannelMsg.SerializeToString,
@@ -65,15 +70,21 @@ class ChatServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def Chat(self, request_iterator, context):
-        """── CLI / desktop ───────────────────────
+        """CLI / desktop 
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def SubscribeChat(self, request, context):
-        """── Browser (gRPC-Web) ──────────────────────────────
+        """Browser (gRPC-Web) 
         """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def JoinChannel(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -108,6 +119,11 @@ def add_ChatServiceServicer_to_server(servicer, server):
                     servicer.SubscribeChat,
                     request_deserializer=chat__service__pb2.Init.FromString,
                     response_serializer=chat__service__pb2.ServerEnvelope.SerializeToString,
+            ),
+            'JoinChannel': grpc.unary_unary_rpc_method_handler(
+                    servicer.JoinChannel,
+                    request_deserializer=chat__service__pb2.JoinReq.FromString,
+                    response_serializer=chat__service__pb2.Empty.SerializeToString,
             ),
             'SendChannelMsg': grpc.unary_unary_rpc_method_handler(
                     servicer.SendChannelMsg,
@@ -179,6 +195,33 @@ class ChatService(object):
             '/chatservice.ChatService/SubscribeChat',
             chat__service__pb2.Init.SerializeToString,
             chat__service__pb2.ServerEnvelope.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def JoinChannel(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/chatservice.ChatService/JoinChannel',
+            chat__service__pb2.JoinReq.SerializeToString,
+            chat__service__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,

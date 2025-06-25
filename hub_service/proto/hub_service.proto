@@ -1,34 +1,24 @@
 syntax = "proto3";
 package hubservice;
 
-// A generic empty message
-message Empty {}
+message Empty          {}
+message Channel        { string id = 1; string name = 2; }
+message ChannelListRes { repeated Channel channels = 1; }
 
-// Represents one channel in the system
-message Channel {
-  string id   = 1;
-  string name = 2;
-}
+message CreateReq      { string name = 1; }
+message DeleteReq      { string id   = 1; }
+message BoolRes        { bool   ok   = 1; string message = 2; }
 
-// Response for ListChannels: a repeated list of Channel messages
-message ChannelListResponse {
-  repeated Channel channels = 1;
-}
+message EnterHubReq    { string token = 1; }
+message EnterHubRes    { bool success = 1; string message = 2; }
+message LogoutReq      { string token = 1; }
+message LogoutRes      { bool success = 1; string message = 2; }
 
-// --- Existing messages for EnterHub and Logout ---
-message EnterHubRequest  { string token = 1; }
-message EnterHubResponse { bool success = 1; string message = 2; }
-
-message LogoutRequest    { string token = 1; }
-message LogoutResponse   { bool success = 1; string message = 2; }
-
-// --- Service definition including the new ListChannels RPC ---
 service HubService {
-  // Verifies the token and grants access to the central hub
-  rpc EnterHub   (EnterHubRequest)  returns (EnterHubResponse);
-  // Logs the user out by invalidating the token
-  rpc Logout     (LogoutRequest)    returns (LogoutResponse);
+  rpc EnterHub     (EnterHubReq)  returns (EnterHubRes);
+  rpc Logout       (LogoutReq)    returns (LogoutRes);
 
-  // New RPC: return the list of all available channels
-  rpc ListChannels (Empty)         returns (ChannelListResponse);
+  rpc ListChannels (Empty)        returns (ChannelListRes);
+  rpc CreateChannel(CreateReq)    returns (BoolRes);
+  rpc DeleteChannel(DeleteReq)    returns (BoolRes);
 }

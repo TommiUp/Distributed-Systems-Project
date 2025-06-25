@@ -2,3 +2,4 @@ grpcio
 grpcio-tools
 PyJWT
 python-dotenv
+pymongo[srv]==4.7.*

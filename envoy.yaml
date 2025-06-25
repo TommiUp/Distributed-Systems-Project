@@ -34,7 +34,7 @@ static_resources:
                           route:
                             cluster: auth_service_grpc
                             max_grpc_timeout: 0s
-                          typed_per_filter_config:            # ← CORS policy
+                          typed_per_filter_config:
                             envoy.filters.http.cors:
                               "@type": type.googleapis.com/envoy.extensions.filters.http.cors.v3.CorsPolicy
                               allow_origin_string_match:
@@ -136,7 +136,6 @@ static_resources:
                               allow_credentials: true
 
   clusters:
-    # (clusters unchanged)
     - name: auth_service_grpc
       connect_timeout: 0.25s
       type: STRICT_DNS

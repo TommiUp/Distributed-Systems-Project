@@ -42,29 +42,29 @@ export class HubServiceClient {
   methodDescriptorEnterHub = new grpcWeb.MethodDescriptor(
     '/hubservice.HubService/EnterHub',
     grpcWeb.MethodType.UNARY,
-    hub_service_pb.EnterHubRequest,
-    hub_service_pb.EnterHubResponse,
-    (request: hub_service_pb.EnterHubRequest) => {
+    hub_service_pb.EnterHubReq,
+    hub_service_pb.EnterHubRes,
+    (request: hub_service_pb.EnterHubReq) => {
       return request.serializeBinary();
     },
-    hub_service_pb.EnterHubResponse.deserializeBinary
+    hub_service_pb.EnterHubRes.deserializeBinary
   );
 
   enterHub(
-    request: hub_service_pb.EnterHubRequest,
-    metadata?: grpcWeb.Metadata | null): Promise<hub_service_pb.EnterHubResponse>;
+    request: hub_service_pb.EnterHubReq,
+    metadata?: grpcWeb.Metadata | null): Promise<hub_service_pb.EnterHubRes>;
 
   enterHub(
-    request: hub_service_pb.EnterHubRequest,
+    request: hub_service_pb.EnterHubReq,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.RpcError,
-               response: hub_service_pb.EnterHubResponse) => void): grpcWeb.ClientReadableStream<hub_service_pb.EnterHubResponse>;
+               response: hub_service_pb.EnterHubRes) => void): grpcWeb.ClientReadableStream<hub_service_pb.EnterHubRes>;
 
   enterHub(
-    request: hub_service_pb.EnterHubRequest,
+    request: hub_service_pb.EnterHubReq,
     metadata?: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.RpcError,
-               response: hub_service_pb.EnterHubResponse) => void) {
+               response: hub_service_pb.EnterHubRes) => void) {
     if (callback !== undefined) {
       return this.client_.rpcCall(
         this.hostname_ +
@@ -85,29 +85,29 @@ export class HubServiceClient {
   methodDescriptorLogout = new grpcWeb.MethodDescriptor(
     '/hubservice.HubService/Logout',
     grpcWeb.MethodType.UNARY,
-    hub_service_pb.LogoutRequest,
-    hub_service_pb.LogoutResponse,
-    (request: hub_service_pb.LogoutRequest) => {
+    hub_service_pb.LogoutReq,
+    hub_service_pb.LogoutRes,
+    (request: hub_service_pb.LogoutReq) => {
       return request.serializeBinary();
     },
-    hub_service_pb.LogoutResponse.deserializeBinary
+    hub_service_pb.LogoutRes.deserializeBinary
   );
 
   logout(
-    request: hub_service_pb.LogoutRequest,
-    metadata?: grpcWeb.Metadata | null): Promise<hub_service_pb.LogoutResponse>;
+    request: hub_service_pb.LogoutReq,
+    metadata?: grpcWeb.Metadata | null): Promise<hub_service_pb.LogoutRes>;
 
   logout(
-    request: hub_service_pb.LogoutRequest,
+    request: hub_service_pb.LogoutReq,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.RpcError,
-               response: hub_service_pb.LogoutResponse) => void): grpcWeb.ClientReadableStream<hub_service_pb.LogoutResponse>;
+               response: hub_service_pb.LogoutRes) => void): grpcWeb.ClientReadableStream<hub_service_pb.LogoutRes>;
 
   logout(
-    request: hub_service_pb.LogoutRequest,
+    request: hub_service_pb.LogoutReq,
     metadata?: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.RpcError,
-               response: hub_service_pb.LogoutResponse) => void) {
+               response: hub_service_pb.LogoutRes) => void) {
     if (callback !== undefined) {
       return this.client_.rpcCall(
         this.hostname_ +
@@ -129,28 +129,28 @@ export class HubServiceClient {
     '/hubservice.HubService/ListChannels',
     grpcWeb.MethodType.UNARY,
     hub_service_pb.Empty,
-    hub_service_pb.ChannelListResponse,
+    hub_service_pb.ChannelListRes,
     (request: hub_service_pb.Empty) => {
       return request.serializeBinary();
     },
-    hub_service_pb.ChannelListResponse.deserializeBinary
+    hub_service_pb.ChannelListRes.deserializeBinary
   );
 
   listChannels(
     request: hub_service_pb.Empty,
-    metadata?: grpcWeb.Metadata | null): Promise<hub_service_pb.ChannelListResponse>;
+    metadata?: grpcWeb.Metadata | null): Promise<hub_service_pb.ChannelListRes>;
 
   listChannels(
     request: hub_service_pb.Empty,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.RpcError,
-               response: hub_service_pb.ChannelListResponse) => void): grpcWeb.ClientReadableStream<hub_service_pb.ChannelListResponse>;
+               response: hub_service_pb.ChannelListRes) => void): grpcWeb.ClientReadableStream<hub_service_pb.ChannelListRes>;
 
   listChannels(
     request: hub_service_pb.Empty,
     metadata?: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.RpcError,
-               response: hub_service_pb.ChannelListResponse) => void) {
+               response: hub_service_pb.ChannelListRes) => void) {
     if (callback !== undefined) {
       return this.client_.rpcCall(
         this.hostname_ +
@@ -166,6 +166,92 @@ export class HubServiceClient {
     request,
     metadata || {},
     this.methodDescriptorListChannels);
+  }
+
+  methodDescriptorCreateChannel = new grpcWeb.MethodDescriptor(
+    '/hubservice.HubService/CreateChannel',
+    grpcWeb.MethodType.UNARY,
+    hub_service_pb.CreateReq,
+    hub_service_pb.BoolRes,
+    (request: hub_service_pb.CreateReq) => {
+      return request.serializeBinary();
+    },
+    hub_service_pb.BoolRes.deserializeBinary
+  );
+
+  createChannel(
+    request: hub_service_pb.CreateReq,
+    metadata?: grpcWeb.Metadata | null): Promise<hub_service_pb.BoolRes>;
+
+  createChannel(
+    request: hub_service_pb.CreateReq,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.RpcError,
+               response: hub_service_pb.BoolRes) => void): grpcWeb.ClientReadableStream<hub_service_pb.BoolRes>;
+
+  createChannel(
+    request: hub_service_pb.CreateReq,
+    metadata?: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.RpcError,
+               response: hub_service_pb.BoolRes) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/hubservice.HubService/CreateChannel',
+        request,
+        metadata || {},
+        this.methodDescriptorCreateChannel,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/hubservice.HubService/CreateChannel',
+    request,
+    metadata || {},
+    this.methodDescriptorCreateChannel);
+  }
+
+  methodDescriptorDeleteChannel = new grpcWeb.MethodDescriptor(
+    '/hubservice.HubService/DeleteChannel',
+    grpcWeb.MethodType.UNARY,
+    hub_service_pb.DeleteReq,
+    hub_service_pb.BoolRes,
+    (request: hub_service_pb.DeleteReq) => {
+      return request.serializeBinary();
+    },
+    hub_service_pb.BoolRes.deserializeBinary
+  );
+
+  deleteChannel(
+    request: hub_service_pb.DeleteReq,
+    metadata?: grpcWeb.Metadata | null): Promise<hub_service_pb.BoolRes>;
+
+  deleteChannel(
+    request: hub_service_pb.DeleteReq,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.RpcError,
+               response: hub_service_pb.BoolRes) => void): grpcWeb.ClientReadableStream<hub_service_pb.BoolRes>;
+
+  deleteChannel(
+    request: hub_service_pb.DeleteReq,
+    metadata?: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.RpcError,
+               response: hub_service_pb.BoolRes) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/hubservice.HubService/DeleteChannel',
+        request,
+        metadata || {},
+        this.methodDescriptorDeleteChannel,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/hubservice.HubService/DeleteChannel',
+    request,
+    metadata || {},
+    this.methodDescriptorDeleteChannel);
   }
 
 }

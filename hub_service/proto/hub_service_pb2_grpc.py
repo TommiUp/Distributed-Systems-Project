@@ -26,8 +26,7 @@ if _version_not_supported:
 
 
 class HubServiceStub(object):
-    """--- Service definition including the new ListChannels RPC ---
-    """
+    """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
         """Constructor.
@@ -37,42 +36,60 @@ class HubServiceStub(object):
         """
         self.EnterHub = channel.unary_unary(
                 '/hubservice.HubService/EnterHub',
-                request_serializer=hub__service__pb2.EnterHubRequest.SerializeToString,
-                response_deserializer=hub__service__pb2.EnterHubResponse.FromString,
+                request_serializer=hub__service__pb2.EnterHubReq.SerializeToString,
+                response_deserializer=hub__service__pb2.EnterHubRes.FromString,
                 _registered_method=True)
         self.Logout = channel.unary_unary(
                 '/hubservice.HubService/Logout',
-                request_serializer=hub__service__pb2.LogoutRequest.SerializeToString,
-                response_deserializer=hub__service__pb2.LogoutResponse.FromString,
+                request_serializer=hub__service__pb2.LogoutReq.SerializeToString,
+                response_deserializer=hub__service__pb2.LogoutRes.FromString,
                 _registered_method=True)
         self.ListChannels = channel.unary_unary(
                 '/hubservice.HubService/ListChannels',
                 request_serializer=hub__service__pb2.Empty.SerializeToString,
-                response_deserializer=hub__service__pb2.ChannelListResponse.FromString,
+                response_deserializer=hub__service__pb2.ChannelListRes.FromString,
+                _registered_method=True)
+        self.CreateChannel = channel.unary_unary(
+                '/hubservice.HubService/CreateChannel',
+                request_serializer=hub__service__pb2.CreateReq.SerializeToString,
+                response_deserializer=hub__service__pb2.BoolRes.FromString,
+                _registered_method=True)
+        self.DeleteChannel = channel.unary_unary(
+                '/hubservice.HubService/DeleteChannel',
+                request_serializer=hub__service__pb2.DeleteReq.SerializeToString,
+                response_deserializer=hub__service__pb2.BoolRes.FromString,
                 _registered_method=True)
 
 
 class HubServiceServicer(object):
-    """--- Service definition including the new ListChannels RPC ---
-    """
+    """Missing associated documentation comment in .proto file."""
 
     def EnterHub(self, request, context):
-        """Verifies the token and grants access to the central hub
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def Logout(self, request, context):
-        """Logs the user out by invalidating the token
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def ListChannels(self, request, context):
-        """New RPC: return the list of all available channels
-        """
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def CreateChannel(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def DeleteChannel(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -82,18 +99,28 @@ def add_HubServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'EnterHub': grpc.unary_unary_rpc_method_handler(
                     servicer.EnterHub,
-                    request_deserializer=hub__service__pb2.EnterHubRequest.FromString,
-                    response_serializer=hub__service__pb2.EnterHubResponse.SerializeToString,
+                    request_deserializer=hub__service__pb2.EnterHubReq.FromString,
+                    response_serializer=hub__service__pb2.EnterHubRes.SerializeToString,
             ),
             'Logout': grpc.unary_unary_rpc_method_handler(
                     servicer.Logout,
-                    request_deserializer=hub__service__pb2.LogoutRequest.FromString,
-                    response_serializer=hub__service__pb2.LogoutResponse.SerializeToString,
+                    request_deserializer=hub__service__pb2.LogoutReq.FromString,
+                    response_serializer=hub__service__pb2.LogoutRes.SerializeToString,
             ),
             'ListChannels': grpc.unary_unary_rpc_method_handler(
                     servicer.ListChannels,
                     request_deserializer=hub__service__pb2.Empty.FromString,
-                    response_serializer=hub__service__pb2.ChannelListResponse.SerializeToString,
+                    response_serializer=hub__service__pb2.ChannelListRes.SerializeToString,
+            ),
+            'CreateChannel': grpc.unary_unary_rpc_method_handler(
+                    servicer.CreateChannel,
+                    request_deserializer=hub__service__pb2.CreateReq.FromString,
+                    response_serializer=hub__service__pb2.BoolRes.SerializeToString,
+            ),
+            'DeleteChannel': grpc.unary_unary_rpc_method_handler(
+                    servicer.DeleteChannel,
+                    request_deserializer=hub__service__pb2.DeleteReq.FromString,
+                    response_serializer=hub__service__pb2.BoolRes.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -104,8 +131,7 @@ def add_HubServiceServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class HubService(object):
-    """--- Service definition including the new ListChannels RPC ---
-    """
+    """Missing associated documentation comment in .proto file."""
 
     @staticmethod
     def EnterHub(request,
@@ -122,8 +148,8 @@ class HubService(object):
             request,
             target,
             '/hubservice.HubService/EnterHub',
-            hub__service__pb2.EnterHubRequest.SerializeToString,
-            hub__service__pb2.EnterHubResponse.FromString,
+            hub__service__pb2.EnterHubReq.SerializeToString,
+            hub__service__pb2.EnterHubRes.FromString,
             options,
             channel_credentials,
             insecure,
@@ -149,8 +175,8 @@ class HubService(object):
             request,
             target,
             '/hubservice.HubService/Logout',
-            hub__service__pb2.LogoutRequest.SerializeToString,
-            hub__service__pb2.LogoutResponse.FromString,
+            hub__service__pb2.LogoutReq.SerializeToString,
+            hub__service__pb2.LogoutRes.FromString,
             options,
             channel_credentials,
             insecure,
@@ -177,7 +203,61 @@ class HubService(object):
             target,
             '/hubservice.HubService/ListChannels',
             hub__service__pb2.Empty.SerializeToString,
-            hub__service__pb2.ChannelListResponse.FromString,
+            hub__service__pb2.ChannelListRes.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def CreateChannel(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/hubservice.HubService/CreateChannel',
+            hub__service__pb2.CreateReq.SerializeToString,
+            hub__service__pb2.BoolRes.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def DeleteChannel(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/hubservice.HubService/DeleteChannel',
+            hub__service__pb2.DeleteReq.SerializeToString,
+            hub__service__pb2.BoolRes.FromString,
             options,
             channel_credentials,
             insecure,

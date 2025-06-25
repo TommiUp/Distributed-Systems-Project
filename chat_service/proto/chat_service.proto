@@ -2,8 +2,8 @@ syntax = "proto3";
 package chatservice;
 
 message Init        { string token   = 1; }
-message ChannelMsg  { string channel = 1; string body = 2; }
-message PrivateMsg  { string recipient = 1; string body = 2; }
+message ChannelMsg  { string channel = 1; string body = 2; int64 ts = 3; }
+message PrivateMsg  { string recipient = 1; string body = 2; int64 ts = 3; }
 
 message ServerEnvelope {
   oneof payload {
@@ -14,9 +14,28 @@ message ServerEnvelope {
   }
 }
 
+/* ────── browser helpers ────── */
+message JoinReq     { string name    = 1; }
+
+message Empty      {}
+message HistoryReq { string channel = 1; int32 limit = 2; }
+message HistoryRes { repeated ChannelMsg items = 1; }
+
+service ChatService {
+  /* CLI / desktop */
+  rpc Chat          (stream ClientEnvelope) returns (stream ServerEnvelope);
+
+  /* Browser (gRPC-Web) */
+  rpc SubscribeChat (Init)        returns (stream ServerEnvelope);
+  rpc JoinChannel   (JoinReq)     returns (Empty);
+  rpc SendChannelMsg(ChannelMsg)  returns (Empty);
+  rpc SendPrivateMsg(PrivateMsg)  returns (Empty);
+  rpc GetHistory    (HistoryReq)  returns (HistoryRes);
+}
+
+/* ---------- legacy types kept for the CLI ---------- */
 message JoinChannel  { string name = 1; }
 message LeaveChannel { string name = 1; }
-
 message ClientEnvelope {
   oneof payload {
     Init         init  = 1;
@@ -25,19 +44,4 @@ message ClientEnvelope {
     ChannelMsg   cm    = 4;
     PrivateMsg   pm    = 5;
   }
-}
-
-message Empty      {}
-message HistoryReq { string channel = 1; int32 limit = 2; }
-message HistoryRes { repeated ChannelMsg items = 1; }
-
-service ChatService {
-  // ── CLI / desktop ───────────────────────
-  rpc Chat          (stream ClientEnvelope) returns (stream ServerEnvelope);
-
-  // ── Browser (gRPC-Web) ──────────────────────────────
-  rpc SubscribeChat (Init)        returns (stream ServerEnvelope);
-  rpc SendChannelMsg(ChannelMsg)  returns (Empty);
-  rpc SendPrivateMsg(PrivateMsg)  returns (Empty);
-  rpc GetHistory    (HistoryReq)  returns (HistoryRes);
 }

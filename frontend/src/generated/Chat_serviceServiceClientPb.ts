@@ -61,6 +61,49 @@ export class ChatServiceClient {
       this.methodDescriptorSubscribeChat);
   }
 
+  methodDescriptorJoinChannel = new grpcWeb.MethodDescriptor(
+    '/chatservice.ChatService/JoinChannel',
+    grpcWeb.MethodType.UNARY,
+    chat_service_pb.JoinReq,
+    chat_service_pb.Empty,
+    (request: chat_service_pb.JoinReq) => {
+      return request.serializeBinary();
+    },
+    chat_service_pb.Empty.deserializeBinary
+  );
+
+  joinChannel(
+    request: chat_service_pb.JoinReq,
+    metadata?: grpcWeb.Metadata | null): Promise<chat_service_pb.Empty>;
+
+  joinChannel(
+    request: chat_service_pb.JoinReq,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.RpcError,
+               response: chat_service_pb.Empty) => void): grpcWeb.ClientReadableStream<chat_service_pb.Empty>;
+
+  joinChannel(
+    request: chat_service_pb.JoinReq,
+    metadata?: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.RpcError,
+               response: chat_service_pb.Empty) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/chatservice.ChatService/JoinChannel',
+        request,
+        metadata || {},
+        this.methodDescriptorJoinChannel,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/chatservice.ChatService/JoinChannel',
+    request,
+    metadata || {},
+    this.methodDescriptorJoinChannel);
+  }
+
   methodDescriptorSendChannelMsg = new grpcWeb.MethodDescriptor(
     '/chatservice.ChatService/SendChannelMsg',
     grpcWeb.MethodType.UNARY,

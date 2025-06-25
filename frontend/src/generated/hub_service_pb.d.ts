@@ -38,100 +38,158 @@ export namespace Channel {
   }
 }
 
-export class ChannelListResponse extends jspb.Message {
+export class ChannelListRes extends jspb.Message {
   getChannelsList(): Array<Channel>;
-  setChannelsList(value: Array<Channel>): ChannelListResponse;
-  clearChannelsList(): ChannelListResponse;
+  setChannelsList(value: Array<Channel>): ChannelListRes;
+  clearChannelsList(): ChannelListRes;
   addChannels(value?: Channel, index?: number): Channel;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): ChannelListResponse.AsObject;
-  static toObject(includeInstance: boolean, msg: ChannelListResponse): ChannelListResponse.AsObject;
-  static serializeBinaryToWriter(message: ChannelListResponse, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): ChannelListResponse;
-  static deserializeBinaryFromReader(message: ChannelListResponse, reader: jspb.BinaryReader): ChannelListResponse;
+  toObject(includeInstance?: boolean): ChannelListRes.AsObject;
+  static toObject(includeInstance: boolean, msg: ChannelListRes): ChannelListRes.AsObject;
+  static serializeBinaryToWriter(message: ChannelListRes, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ChannelListRes;
+  static deserializeBinaryFromReader(message: ChannelListRes, reader: jspb.BinaryReader): ChannelListRes;
 }
 
-export namespace ChannelListResponse {
+export namespace ChannelListRes {
   export type AsObject = {
     channelsList: Array<Channel.AsObject>,
   }
 }
 
-export class EnterHubRequest extends jspb.Message {
-  getToken(): string;
-  setToken(value: string): EnterHubRequest;
+export class CreateReq extends jspb.Message {
+  getName(): string;
+  setName(value: string): CreateReq;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): EnterHubRequest.AsObject;
-  static toObject(includeInstance: boolean, msg: EnterHubRequest): EnterHubRequest.AsObject;
-  static serializeBinaryToWriter(message: EnterHubRequest, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): EnterHubRequest;
-  static deserializeBinaryFromReader(message: EnterHubRequest, reader: jspb.BinaryReader): EnterHubRequest;
+  toObject(includeInstance?: boolean): CreateReq.AsObject;
+  static toObject(includeInstance: boolean, msg: CreateReq): CreateReq.AsObject;
+  static serializeBinaryToWriter(message: CreateReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): CreateReq;
+  static deserializeBinaryFromReader(message: CreateReq, reader: jspb.BinaryReader): CreateReq;
 }
 
-export namespace EnterHubRequest {
+export namespace CreateReq {
+  export type AsObject = {
+    name: string,
+  }
+}
+
+export class DeleteReq extends jspb.Message {
+  getId(): string;
+  setId(value: string): DeleteReq;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): DeleteReq.AsObject;
+  static toObject(includeInstance: boolean, msg: DeleteReq): DeleteReq.AsObject;
+  static serializeBinaryToWriter(message: DeleteReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): DeleteReq;
+  static deserializeBinaryFromReader(message: DeleteReq, reader: jspb.BinaryReader): DeleteReq;
+}
+
+export namespace DeleteReq {
+  export type AsObject = {
+    id: string,
+  }
+}
+
+export class BoolRes extends jspb.Message {
+  getOk(): boolean;
+  setOk(value: boolean): BoolRes;
+
+  getMessage(): string;
+  setMessage(value: string): BoolRes;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): BoolRes.AsObject;
+  static toObject(includeInstance: boolean, msg: BoolRes): BoolRes.AsObject;
+  static serializeBinaryToWriter(message: BoolRes, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): BoolRes;
+  static deserializeBinaryFromReader(message: BoolRes, reader: jspb.BinaryReader): BoolRes;
+}
+
+export namespace BoolRes {
+  export type AsObject = {
+    ok: boolean,
+    message: string,
+  }
+}
+
+export class EnterHubReq extends jspb.Message {
+  getToken(): string;
+  setToken(value: string): EnterHubReq;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): EnterHubReq.AsObject;
+  static toObject(includeInstance: boolean, msg: EnterHubReq): EnterHubReq.AsObject;
+  static serializeBinaryToWriter(message: EnterHubReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): EnterHubReq;
+  static deserializeBinaryFromReader(message: EnterHubReq, reader: jspb.BinaryReader): EnterHubReq;
+}
+
+export namespace EnterHubReq {
   export type AsObject = {
     token: string,
   }
 }
 
-export class EnterHubResponse extends jspb.Message {
+export class EnterHubRes extends jspb.Message {
   getSuccess(): boolean;
-  setSuccess(value: boolean): EnterHubResponse;
+  setSuccess(value: boolean): EnterHubRes;
 
   getMessage(): string;
-  setMessage(value: string): EnterHubResponse;
+  setMessage(value: string): EnterHubRes;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): EnterHubResponse.AsObject;
-  static toObject(includeInstance: boolean, msg: EnterHubResponse): EnterHubResponse.AsObject;
-  static serializeBinaryToWriter(message: EnterHubResponse, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): EnterHubResponse;
-  static deserializeBinaryFromReader(message: EnterHubResponse, reader: jspb.BinaryReader): EnterHubResponse;
+  toObject(includeInstance?: boolean): EnterHubRes.AsObject;
+  static toObject(includeInstance: boolean, msg: EnterHubRes): EnterHubRes.AsObject;
+  static serializeBinaryToWriter(message: EnterHubRes, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): EnterHubRes;
+  static deserializeBinaryFromReader(message: EnterHubRes, reader: jspb.BinaryReader): EnterHubRes;
 }
 
-export namespace EnterHubResponse {
+export namespace EnterHubRes {
   export type AsObject = {
     success: boolean,
     message: string,
   }
 }
 
-export class LogoutRequest extends jspb.Message {
+export class LogoutReq extends jspb.Message {
   getToken(): string;
-  setToken(value: string): LogoutRequest;
+  setToken(value: string): LogoutReq;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): LogoutRequest.AsObject;
-  static toObject(includeInstance: boolean, msg: LogoutRequest): LogoutRequest.AsObject;
-  static serializeBinaryToWriter(message: LogoutRequest, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): LogoutRequest;
-  static deserializeBinaryFromReader(message: LogoutRequest, reader: jspb.BinaryReader): LogoutRequest;
+  toObject(includeInstance?: boolean): LogoutReq.AsObject;
+  static toObject(includeInstance: boolean, msg: LogoutReq): LogoutReq.AsObject;
+  static serializeBinaryToWriter(message: LogoutReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): LogoutReq;
+  static deserializeBinaryFromReader(message: LogoutReq, reader: jspb.BinaryReader): LogoutReq;
 }
 
-export namespace LogoutRequest {
+export namespace LogoutReq {
   export type AsObject = {
     token: string,
   }
 }
 
-export class LogoutResponse extends jspb.Message {
+export class LogoutRes extends jspb.Message {
   getSuccess(): boolean;
-  setSuccess(value: boolean): LogoutResponse;
+  setSuccess(value: boolean): LogoutRes;
 
   getMessage(): string;
-  setMessage(value: string): LogoutResponse;
+  setMessage(value: string): LogoutRes;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): LogoutResponse.AsObject;
-  static toObject(includeInstance: boolean, msg: LogoutResponse): LogoutResponse.AsObject;
-  static serializeBinaryToWriter(message: LogoutResponse, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): LogoutResponse;
-  static deserializeBinaryFromReader(message: LogoutResponse, reader: jspb.BinaryReader): LogoutResponse;
+  toObject(includeInstance?: boolean): LogoutRes.AsObject;
+  static toObject(includeInstance: boolean, msg: LogoutRes): LogoutRes.AsObject;
+  static serializeBinaryToWriter(message: LogoutRes, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): LogoutRes;
+  static deserializeBinaryFromReader(message: LogoutRes, reader: jspb.BinaryReader): LogoutRes;
 }
 
-export namespace LogoutResponse {
+export namespace LogoutRes {
   export type AsObject = {
     success: boolean,
     message: string,

@@ -27,6 +27,9 @@ export class ChannelMsg extends jspb.Message {
   getBody(): string;
   setBody(value: string): ChannelMsg;
 
+  getTs(): number;
+  setTs(value: number): ChannelMsg;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ChannelMsg.AsObject;
   static toObject(includeInstance: boolean, msg: ChannelMsg): ChannelMsg.AsObject;
@@ -39,6 +42,7 @@ export namespace ChannelMsg {
   export type AsObject = {
     channel: string,
     body: string,
+    ts: number,
   }
 }
 
@@ -48,6 +52,9 @@ export class PrivateMsg extends jspb.Message {
 
   getBody(): string;
   setBody(value: string): PrivateMsg;
+
+  getTs(): number;
+  setTs(value: number): PrivateMsg;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): PrivateMsg.AsObject;
@@ -61,6 +68,7 @@ export namespace PrivateMsg {
   export type AsObject = {
     recipient: string,
     body: string,
+    ts: number,
   }
 }
 
@@ -107,6 +115,80 @@ export namespace ServerEnvelope {
     PM = 2,
     CM = 3,
     HISTORY_RES = 4,
+  }
+}
+
+export class JoinReq extends jspb.Message {
+  getName(): string;
+  setName(value: string): JoinReq;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): JoinReq.AsObject;
+  static toObject(includeInstance: boolean, msg: JoinReq): JoinReq.AsObject;
+  static serializeBinaryToWriter(message: JoinReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): JoinReq;
+  static deserializeBinaryFromReader(message: JoinReq, reader: jspb.BinaryReader): JoinReq;
+}
+
+export namespace JoinReq {
+  export type AsObject = {
+    name: string,
+  }
+}
+
+export class Empty extends jspb.Message {
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): Empty.AsObject;
+  static toObject(includeInstance: boolean, msg: Empty): Empty.AsObject;
+  static serializeBinaryToWriter(message: Empty, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): Empty;
+  static deserializeBinaryFromReader(message: Empty, reader: jspb.BinaryReader): Empty;
+}
+
+export namespace Empty {
+  export type AsObject = {
+  }
+}
+
+export class HistoryReq extends jspb.Message {
+  getChannel(): string;
+  setChannel(value: string): HistoryReq;
+
+  getLimit(): number;
+  setLimit(value: number): HistoryReq;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): HistoryReq.AsObject;
+  static toObject(includeInstance: boolean, msg: HistoryReq): HistoryReq.AsObject;
+  static serializeBinaryToWriter(message: HistoryReq, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): HistoryReq;
+  static deserializeBinaryFromReader(message: HistoryReq, reader: jspb.BinaryReader): HistoryReq;
+}
+
+export namespace HistoryReq {
+  export type AsObject = {
+    channel: string,
+    limit: number,
+  }
+}
+
+export class HistoryRes extends jspb.Message {
+  getItemsList(): Array<ChannelMsg>;
+  setItemsList(value: Array<ChannelMsg>): HistoryRes;
+  clearItemsList(): HistoryRes;
+  addItems(value?: ChannelMsg, index?: number): ChannelMsg;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): HistoryRes.AsObject;
+  static toObject(includeInstance: boolean, msg: HistoryRes): HistoryRes.AsObject;
+  static serializeBinaryToWriter(message: HistoryRes, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): HistoryRes;
+  static deserializeBinaryFromReader(message: HistoryRes, reader: jspb.BinaryReader): HistoryRes;
+}
+
+export namespace HistoryRes {
+  export type AsObject = {
+    itemsList: Array<ChannelMsg.AsObject>,
   }
 }
 
@@ -198,62 +280,6 @@ export namespace ClientEnvelope {
     LEAVE = 3,
     CM = 4,
     PM = 5,
-  }
-}
-
-export class Empty extends jspb.Message {
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): Empty.AsObject;
-  static toObject(includeInstance: boolean, msg: Empty): Empty.AsObject;
-  static serializeBinaryToWriter(message: Empty, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): Empty;
-  static deserializeBinaryFromReader(message: Empty, reader: jspb.BinaryReader): Empty;
-}
-
-export namespace Empty {
-  export type AsObject = {
-  }
-}
-
-export class HistoryReq extends jspb.Message {
-  getChannel(): string;
-  setChannel(value: string): HistoryReq;
-
-  getLimit(): number;
-  setLimit(value: number): HistoryReq;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): HistoryReq.AsObject;
-  static toObject(includeInstance: boolean, msg: HistoryReq): HistoryReq.AsObject;
-  static serializeBinaryToWriter(message: HistoryReq, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): HistoryReq;
-  static deserializeBinaryFromReader(message: HistoryReq, reader: jspb.BinaryReader): HistoryReq;
-}
-
-export namespace HistoryReq {
-  export type AsObject = {
-    channel: string,
-    limit: number,
-  }
-}
-
-export class HistoryRes extends jspb.Message {
-  getItemsList(): Array<ChannelMsg>;
-  setItemsList(value: Array<ChannelMsg>): HistoryRes;
-  clearItemsList(): HistoryRes;
-  addItems(value?: ChannelMsg, index?: number): ChannelMsg;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): HistoryRes.AsObject;
-  static toObject(includeInstance: boolean, msg: HistoryRes): HistoryRes.AsObject;
-  static serializeBinaryToWriter(message: HistoryRes, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): HistoryRes;
-  static deserializeBinaryFromReader(message: HistoryRes, reader: jspb.BinaryReader): HistoryRes;
-}
-
-export namespace HistoryRes {
-  export type AsObject = {
-    itemsList: Array<ChannelMsg.AsObject>,
   }
 }
 
