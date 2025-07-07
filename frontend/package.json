@@ -13,6 +13,7 @@
     "dayjs": "^1.11.13",
     "google-protobuf": "^3.21.4",
     "grpc-web": "^1.5.0",
+    "jsonwebtoken": "^9.0.2",
     "next": "15.3.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
@@ -20,6 +21,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

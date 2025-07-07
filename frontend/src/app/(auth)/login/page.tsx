@@ -4,8 +4,6 @@ import { useState } from 'react';
 import * as grpcWeb from 'grpc-web';
 import { AuthServiceClient } from '@/generated/Auth_serviceServiceClientPb';
 import {
-  LoginRequest,
-  LoginResponse,
   RegisterRequest,
   RegisterResponse,
 } from '@/generated/auth_service_pb';
@@ -21,35 +19,63 @@ export default function AuthPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleSubmit = () => {
+  // After login, save the token to localStorage so your client code can read it
+  const handleLogin = async () => {
     setError(null);
     if (!username.trim() || !password.trim()) {
       setError('Username & password are required');
       return;
     }
 
-    if (mode === 'login') {
-      const req = new LoginRequest()
-        .setUsername(username)
-        .setPassword(password);
-      authClient.login(req, {}, (err, res) => {
-        if (err || !res) return setError('Network error');
-        if (!res.getSuccess()) return setError(res.getMessage());
-        document.cookie = `access_token=${res.getToken()}; path=/;`;
-        router.push('/channels');
-      });
-    } else {
-      const req = new RegisterRequest()
-        .setUsername(username)
-        .setPassword(password);
-      authClient.register(req, {}, (err, res) => {
-        if (err || !res) return setError('Network error');
-        if (!res.getSuccess()) return setError(res.getMessage());
-        setMode('login');
-        setError('✅ Registered! Please log in.');
-        setPassword('');
-      });
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => null);
+      setError(body?.message || 'Login failed');
+      return;
     }
+
+    const body = await res.json();
+    if (body.success && body.token) {
+      localStorage.setItem('access_token', body.token);
+      router.push('/channels');
+    } else {
+      setError('Login failed');
+    }
+  };
+
+  const handleRegister = () => {
+    setError(null);
+    if (!username.trim() || !password.trim()) {
+      setError('Username & password are required');
+      return;
+    }
+
+    const req = new RegisterRequest()
+      .setUsername(username)
+      .setPassword(password);
+
+    authClient.register(req, {}, (err: grpcWeb.RpcError, resp?: RegisterResponse) => {
+      if (err || !resp) {
+        setError('Network error');
+        return;
+      }
+      if (!resp.getSuccess()) {
+        setError(resp.getMessage());
+        return;
+      }
+      // After register, switch to login mode
+      setMode('login');
+      setError('✅ Registered! You can now log in.');
+      setPassword('');
+    });
+  };
+
+  const handleSubmit = () => {
+    mode === 'login' ? handleLogin() : handleRegister();
   };
 
   return (
@@ -90,9 +116,7 @@ export default function AuthPage() {
         </p>
 
         {/* Error */}
-        {error && (
-          <div className="text-red-500 text-sm mb-4">{error}</div>
-        )}
+        {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
 
         {/* Form */}
         <div className="space-y-4">
@@ -117,7 +141,7 @@ export default function AuthPage() {
           </label>
         </div>
 
-        {/* Forgot / Submit */}
+        {/* Submit */}
         <div className="mt-6 flex items-center justify-between">
           {mode === 'login' && (
             <button className="text-xs text-[#7289DA] hover:underline">

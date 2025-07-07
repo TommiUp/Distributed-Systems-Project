@@ -1,8 +1,10 @@
+// src/app/(protected)/channels/page.tsx
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
 import * as grpcWeb from 'grpc-web';
 
+import { getToken } from '@/lib/token';
 import { HubServiceClient } from '@/generated/Hub_serviceServiceClientPb';
 import {
   Empty,
@@ -28,12 +30,13 @@ export default function ChannelsPage() {
     []
   );
 
+  // pull JWT from localStorage and set Authorization header
   const md = (): grpcWeb.Metadata => {
-    const m = document.cookie.match(/(?:^|; )access_token=([^;]+)/);
-    return m ? { authorization: `Bearer ${decodeURIComponent(m[1])}` } : {};
+    const t = getToken();
+    return t ? { authorization: `Bearer ${t}` } : {};
   };
 
-  // fetch channels
+  // fetch channels list
   const refresh = () => {
     hubClient.listChannels(new Empty(), md(), (e, res) => {
       setLoading(false);
@@ -42,19 +45,21 @@ export default function ChannelsPage() {
         return;
       }
       setChannels(
-        res
-          .getChannelsList()
-          .map((c: ChMsg) => ({ id: c.getId(), name: c.getName() }))
+        res.getChannelsList().map((c: ChMsg) => ({
+          id: c.getId(),
+          name: c.getName(),
+        }))
       );
     });
   };
 
   useEffect(refresh, [hubClient]);
 
+  // create a new channel
   const create = () => {
     const name = newName.trim();
     if (!name) return;
-    hubClient.createChannel(new CreateReq().setName(name), md(), (_, res) => {
+    hubClient.createChannel(new CreateReq().setName(name), md(), (_e, res) => {
       if (res?.getOk()) {
         setNewName('');
         refresh();
@@ -64,16 +69,18 @@ export default function ChannelsPage() {
     });
   };
 
+  // delete an existing channel
   const del = (id: string) => {
     if (!confirm(`Delete channel “${id}”?`)) return;
-    hubClient.deleteChannel(new DeleteReq().setId(id), md(), (_, res) => {
+    hubClient.deleteChannel(new DeleteReq().setId(id), md(), (_e, res) => {
       if (res?.getOk()) refresh();
       else alert(res?.getMessage() || 'Error deleting');
     });
   };
 
-  const logout = () => {
-    document.cookie = 'access_token=; Max-Age=0; path=/;';
+  // logout: clear cookie via API and redirect
+  const logout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
     router.push('/login');
   };
 

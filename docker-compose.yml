@@ -1,4 +1,5 @@
 version: '3.9'
+
 services:
   # ────────────────────────────────────────────────────────────────────────────
   #  1) MongoDB (for AuthService + Chat’s message storage)
@@ -109,6 +110,8 @@ services:
         NEXT_PUBLIC_AUTH_HOST:  "http://localhost:8081"
         NEXT_PUBLIC_HUB_HOST:   "http://localhost:8082"
         NEXT_PUBLIC_CHAT_HOST:  "http://localhost:8083"
+    env_file:
+      - .env                # ← injects SECRET_KEY (and any other vars) into process.env
     container_name: frontend
     ports:
       - "3000:3000"

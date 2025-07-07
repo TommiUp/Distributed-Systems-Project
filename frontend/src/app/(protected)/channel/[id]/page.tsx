@@ -1,3 +1,4 @@
+// src/app/(protected)/channel/[id]/page.tsx
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
@@ -6,6 +7,7 @@ import { useParams, useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import Link from 'next/link';
 
+import { getToken } from '@/lib/token';
 import { ChatServiceClient } from '@/generated/Chat_serviceServiceClientPb';
 import {
   Init,
@@ -30,19 +32,19 @@ export default function ChannelPage() {
   const router = useRouter();
   const { id } = useParams() as { id: string };
 
-  // — auth / metadata —
-  const token = () =>
-    decodeURIComponent(
-      document.cookie.match(/(?:^|; )access_token=([^;]+)/)?.[1] || ''
-    );
-  const md = (): grpcWeb.Metadata =>
-    token() ? { authorization: `Bearer ${token()}` } : {};
-  const logout = () => {
-    document.cookie = 'access_token=; Max-Age=0; path=/;';
+  // build gRPC metadata from localStorage token
+  const md = (): grpcWeb.Metadata => {
+    const token = getToken();
+    return token ? { authorization: `Bearer ${token}` } : {};
+  };
+
+  // logout by clearing cookie via API route
+  const logout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
     router.push('/login');
   };
 
-  // — sidebar (channels CRUD) —
+  // Sidebar: load/create/delete channels
   const [channels, setChannels]       = useState<Channel[]>([]);
   const [newName, setNewName]         = useState('');
   const [chanErr, setChanErr]         = useState<string|null>(null);
@@ -52,7 +54,6 @@ export default function ChannelPage() {
     () => new HubServiceClient(process.env.NEXT_PUBLIC_HUB_HOST!, null, null),
     []
   );
-
   const fetchChannels = () => {
     hubClient.listChannels(new Empty(), md(), (e, res) => {
       setChanLoading(false);
@@ -87,6 +88,7 @@ export default function ChannelPage() {
     if (!confirm(`Delete channel “${cid}”?`)) return;
     hubClient.deleteChannel(new DeleteReq().setId(cid), md(), (_e, res) => {
       if (res?.getOk()) {
+        // if we're in that channel, send back to hub
         if (cid === id) router.push('/channels');
         fetchChannels();
       } else {
@@ -95,17 +97,13 @@ export default function ChannelPage() {
     });
   };
 
-  // — chat (history + live) —
+  // Chat: history + live updates
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput]       = useState('');
 
   const chat = useMemo(
     () =>
-      new ChatServiceClient(
-        process.env.NEXT_PUBLIC_CHAT_HOST!,
-        null,
-        null
-      ),
+      new ChatServiceClient(process.env.NEXT_PUBLIC_CHAT_HOST!, null, null),
     []
   );
 
@@ -114,34 +112,29 @@ export default function ChannelPage() {
   const stripText = (s: string) => s.slice(s.indexOf(':')+1).trim();
 
   useEffect(() => {
-    if (!token()) {
+    // redirect if not logged in
+    if (!getToken()) {
       router.push('/login');
       return;
     }
 
+    // join & fetch history
     chat.joinChannel(new JoinReq().setName(id), md(), () => {});
     chat.getHistory(new HistoryReq().setChannel(id).setLimit(200), md(),
       (_e, res) => res?.getItemsList().forEach(m =>
-        push({
-          user: stripUser(m.getBody()),
-          text: stripText(m.getBody()),
-          ts:   m.getTs(),
-        })
+        push({ user: stripUser(m.getBody()), text: stripText(m.getBody()), ts: m.getTs() })
       )
     );
 
-    const stream = chat.subscribeChat(new Init().setToken(token()), {});
+    // subscribe to live stream
+    const stream = chat.subscribeChat(new Init().setToken(getToken()!), {});
     stream.on('data', (e: ServerEnvelope) => {
       if (e.getNotice()) {
         push({ user: 'System', text: e.getNotice()!, ts: Date.now() });
       }
       const cm = e.getCm();
       if (cm) {
-        push({
-          user: stripUser(cm.getBody()),
-          text: stripText(cm.getBody()),
-          ts:   cm.getTs(),
-        });
+        push({ user: stripUser(cm.getBody()), text: stripText(cm.getBody()), ts: cm.getTs() });
       }
       const pm = e.getPm();
       if (pm) {
@@ -163,28 +156,24 @@ export default function ChannelPage() {
     setInput('');
   };
 
-  // timestamp formatter
+  // timestamp formatting
   const fmt = (ts: number) =>
     dayjs(ts).isSame(dayjs(), 'day')
       ? dayjs(ts).format('HH:mm')
       : dayjs(ts).format('D MMM YYYY HH:mm');
 
-  // — render —
+  // render
   if (chanLoading) return <div className="p-4 text-gray-400">Loading…</div>;
   if (chanErr)     return <div className="p-4 text-red-500">{chanErr}</div>;
 
   let lastDate = '';
-
   return (
     <div className="flex h-screen bg-[#2f3136]">
       {/* sidebar */}
       <aside className="w-72 flex flex-col p-4 bg-[#202225]">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-white font-bold text-lg">Channels</h2>
-          <button
-            onClick={logout}
-            className="text-red-500 hover:text-red-700 text-sm"
-          >
+          <button onClick={logout} className="text-red-500 hover:text-red-700 text-sm">
             Logout
           </button>
         </div>
@@ -193,11 +182,7 @@ export default function ChannelPage() {
             <div key={c.id} className="flex items-center">
               <Link
                 href={`/channel/${c.id}`}
-                className="
-                  flex-1 px-3 py-2 rounded-md
-                  text-gray-300 hover:bg-[#40444b] hover:text-white
-                  transition
-                "
+                className="flex-1 px-3 py-2 rounded-md text-gray-300 hover:bg-[#40444b] hover:text-white transition"
               >
                 {c.name}
               </Link>
@@ -205,6 +190,7 @@ export default function ChannelPage() {
                 <button
                   onClick={() => deleteChannel(c.id)}
                   className="ml-2 text-gray-500 hover:text-red-500"
+                  title="Delete"
                 >
                   ✕
                 </button>
@@ -217,20 +203,12 @@ export default function ChannelPage() {
             value={newName}
             onChange={e => setNewName(e.target.value)}
             placeholder="New channel…"
-            className="
-              flex-1 px-3 py-2 rounded bg-[#36393F] text-gray-200
-              placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#7289DA]
-            "
+            className="flex-1 px-3 py-2 rounded bg-[#36393F] text-gray-200 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#7289DA]"
           />
           <button
             onClick={createChannel}
             disabled={!newName.trim() || channels.length >= 8}
-            className="
-              w-10 h-10 flex items-center justify-center
-              bg-[#7289DA] text-white rounded-md
-              hover:bg-[#5b6eae] cursor-pointer
-              disabled:opacity-50 disabled:cursor-not-allowed
-            "
+            className="w-10 h-10 flex items-center justify-center bg-[#7289DA] text-white rounded-md hover:bg-[#5b6eae] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span className="text-2xl leading-none">+</span>
           </button>
@@ -240,11 +218,7 @@ export default function ChannelPage() {
       {/* chat area */}
       <main className="flex-1 flex flex-col">
         <header className="px-4 py-2 bg-[#36393f] border-b border-[#40444b] flex items-center">
-          {/* ← back to hub */}
-          <button
-            onClick={() => router.push('/channels')}
-            className="text-gray-400 hover:text-white mr-4"
-          >
+          <button onClick={() => router.push('/channels')} className="text-gray-400 hover:text-white mr-4">
             ←
           </button>
           <h1 className="text-white font-semibold">#{id}</h1>
@@ -262,50 +236,29 @@ export default function ChannelPage() {
                 {showSep && (
                   <div className="flex items-center text-gray-400 text-xs my-4">
                     <hr className="flex-1 border-[#40444b]" />
-                    <span className="mx-2 whitespace-nowrap">
-                      {dayjs(m.ts).format('D MMM YYYY')}
-                    </span>
+                    <span className="mx-2 whitespace-nowrap">{dayjs(m.ts).format('D MMM YYYY')}</span>
                     <hr className="flex-1 border-[#40444b]" />
                   </div>
                 )}
-
-                {/* Username + timestamp */}
                 <div className="flex items-center gap-2">
-                  <strong
-                    className={isNotice ? 'text-[#7289DA]' : 'text-white'}
-                  >
-                    {m.user}
-                  </strong>
-                  <span className="text-gray-400 text-xs whitespace-nowrap">
-                    {fmt(m.ts)}
-                  </span>
+                  <strong className={isNotice ? 'text-[#7289DA]' : 'text-white'}>{m.user}</strong>
+                  <span className="text-gray-400 text-xs whitespace-nowrap">{fmt(m.ts)}</span>
                 </div>
-
-                {/* Message body */}
-                <div className="ml-14 text-gray-200 break-words">
-                  {m.text}
-                </div>
+                <div className="ml-14 text-gray-200 break-words">{m.text}</div>
               </div>
             );
           })}
         </div>
 
-        {/* input */}
         <div className="px-4 py-3 bg-[#36393f] border-t border-[#40444b] flex gap-2">
           <input
-            className="
-              flex-1 px-3 py-2 bg-[#202225] text-white rounded
-              focus:outline-none focus:ring-2 focus:ring-[#7289da]
-            "
+            className="flex-1 px-3 py-2 bg-[#202225] text-white rounded focus:outline-none focus:ring-2 focus:ring-[#7289da]"
             placeholder={`Message #${id}`}
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && send()}
           />
-          <button
-            onClick={send}
-            className="px-4 py-2 bg-[#7289da] text-white rounded hover:bg-opacity-90"
-          >
+          <button onClick={send} className="px-4 py-2 bg-[#7289da] text-white rounded hover:bg-opacity-90">
             Send
           </button>
         </div>
