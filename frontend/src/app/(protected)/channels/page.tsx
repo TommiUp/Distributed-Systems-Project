@@ -2,136 +2,156 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import * as grpcWeb from 'grpc-web';
+
+import { HubServiceClient } from '@/generated/Hub_serviceServiceClientPb';
 import {
-  HubServiceClient,
-} from '@/generated/Hub_serviceServiceClientPb';
-import {
-  Empty, ChannelListRes, Channel as ChMsg,
-  CreateReq, DeleteReq, BoolRes,
+  Empty,
+  Channel as ChMsg,
+  CreateReq,
+  DeleteReq,
 } from '@/generated/hub_service_pb';
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-/* ───────── helpers ───────── */
-const readJwt = () => {
-  const m = document.cookie.match(/(?:^|; )access_token=([^;]+)/);
-  return m ? decodeURIComponent(m[1]) : null;
-};
-const md = (): grpcWeb.Metadata => {
-  const t = readJwt();
-  return t ? { authorization: `Bearer ${t}` } : {};
-};
-
-/* ───────── component ─────── */
-interface Channel { id: string; name: string }
+type Channel = { id: string; name: string };
 
 export default function ChannelsPage() {
-  const router         = useRouter();
+  const router = useRouter();
   const [channels, setChannels] = useState<Channel[]>([]);
-  const [newName,  setNewName]  = useState('');
-  const [err, setErr]          = useState<string|null>(null);
-  const [loading, setLoading]  = useState(true);
+  const [newName, setNewName] = useState('');
+  const [err, setErr] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const hubClient = useMemo(
     () => new HubServiceClient(process.env.NEXT_PUBLIC_HUB_HOST!, null, null),
     []
   );
 
-  /* -------- fetch list -------- */
+  const md = (): grpcWeb.Metadata => {
+    const m = document.cookie.match(/(?:^|; )access_token=([^;]+)/);
+    return m ? { authorization: `Bearer ${decodeURIComponent(m[1])}` } : {};
+  };
+
+  // fetch channels
   const refresh = () => {
-    hubClient.listChannels(new Empty(), md(), (e, res: ChannelListRes|null) => {
+    hubClient.listChannels(new Empty(), md(), (e, res) => {
       setLoading(false);
-      if (e || !res) { setErr('Load failed'); return; }
-      setChannels(res.getChannelsList().map(
-        (c:ChMsg) => ({ id: c.getId(), name: c.getName() })
-      ));
+      if (e || !res) {
+        setErr('Failed to load channels');
+        return;
+      }
+      setChannels(
+        res
+          .getChannelsList()
+          .map((c: ChMsg) => ({ id: c.getId(), name: c.getName() }))
+      );
     });
   };
+
   useEffect(refresh, [hubClient]);
 
-  /* -------- create -------- */
   const create = () => {
     const name = newName.trim();
     if (!name) return;
-    hubClient.createChannel(new CreateReq().setName(name), md(),
-      (_e, res: BoolRes|null) => {
-        if (res?.getOk()) { setNewName(''); refresh(); }
-        else               { alert(res?.getMessage() || 'error'); }
-      });
+    hubClient.createChannel(new CreateReq().setName(name), md(), (_, res) => {
+      if (res?.getOk()) {
+        setNewName('');
+        refresh();
+      } else {
+        alert(res?.getMessage() || 'Error creating');
+      }
+    });
   };
 
-  /* -------- delete -------- */
   const del = (id: string) => {
-    if (!confirm(`Delete channel “${id}” and its history?`)) return;
-    hubClient.deleteChannel(new DeleteReq().setId(id), md(),
-      (_e, res: BoolRes|null) => {
-        if (res?.getOk()) refresh();
-        else              alert(res?.getMessage() || 'error');
-      });
+    if (!confirm(`Delete channel “${id}”?`)) return;
+    hubClient.deleteChannel(new DeleteReq().setId(id), md(), (_, res) => {
+      if (res?.getOk()) refresh();
+      else alert(res?.getMessage() || 'Error deleting');
+    });
   };
 
-  /* -------- logout -------- */
   const logout = () => {
-    document.cookie = 'access_token=; Max-Age=0; path=/;';   // clear cookie
+    document.cookie = 'access_token=; Max-Age=0; path=/;';
     router.push('/login');
   };
 
-  /* -------- render -------- */
-  if (loading) return <div>Loading…</div>;
-  if (err)     return <div className="text-red-600">{err}</div>;
+  if (loading) return <div className="p-4 text-gray-400">Loading…</div>;
+  if (err) return <div className="p-4 text-red-500">{err}</div>;
 
   return (
-    <aside className="w-64 border-r min-h-screen p-4 flex flex-col gap-4">
+    <div className="flex h-screen bg-[#2f3136]">
+      {/* Sidebar */}
+      <aside className="w-72 flex flex-col p-4 bg-[#202225]">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-white font-bold text-lg">Channels</h2>
+          <button
+            onClick={logout}
+            className="text-red-500 hover:text-red-700 text-sm"
+          >
+            Logout
+          </button>
+        </div>
 
-      {/* header row */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-bold">
-          Channels ({channels.length}/8)
-        </h2>
-        <button className="text-sm text-red-600" onClick={logout}>
-          Logout
-        </button>
-      </div>
-
-      {/* list */}
-      <div className="flex-1 space-y-1">
-        {channels.map(c => (
-          <div key={c.id} className="flex justify-between items-center">
-            <Link
-              href={`/channel/${c.id}`}
-              className="flex-1 py-1 px-2 rounded hover:bg-gray-100"
-            >
-              {c.name}
-            </Link>
-            {c.id !== 'Main' && (
-              <button
-                onClick={() => del(c.id)}
-                className="text-xs text-gray-400 hover:text-red-600"
+        {/* Channel list */}
+        <div className="flex-1 overflow-y-auto space-y-1">
+          {channels.map((c) => (
+            <div key={c.id} className="flex items-center">
+              <Link
+                href={`/channel/${c.id}`}
+                className="
+                  flex-1 px-3 py-2 rounded-md
+                  text-gray-300 hover:bg-[#40444b] hover:text-white
+                  transition
+                "
               >
-                ✕
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
+                {c.name}
+              </Link>
+              {c.id !== 'Main' && (
+                <button
+                  onClick={() => del(c.id)}
+                  className="ml-2 text-gray-500 hover:text-red-500"
+                  title="Delete"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
 
-      {/* create */}
-      <div className="flex gap-2">
-        <input
-          value={newName}
-          onChange={e => setNewName(e.target.value)}
-          className="input flex-1"
-          placeholder="New channel…"
-        />
-        <button
-          onClick={create}
-          disabled={!newName.trim() || channels.length >= 8}
-          className="btn"
-        >
-          +
-        </button>
-      </div>
-    </aside>
+        {/* Create new (pinned to bottom) */}
+        <div className="mt-auto flex items-center gap-2">
+          <input
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            placeholder="New channel…"
+            className="
+              flex-1 px-3 py-2 rounded bg-[#36393F] text-gray-200
+              placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#7289DA]
+            "
+          />
+          <button
+            onClick={create}
+            disabled={!newName.trim() || channels.length >= 8}
+            className="
+              w-10 h-10 flex items-center justify-center
+              bg-[#7289DA] text-white rounded-md
+              hover:bg-[#5b6eae] cursor-pointer
+              disabled:opacity-50 disabled:cursor-not-allowed
+            "
+          >
+            <span className="text-2xl leading-none">+</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* Main / instructions */}
+      <main className="flex-1 flex items-center justify-center text-gray-400">
+        Select a channel on the left to chat.
+      </main>
+    </div>
   );
 }
