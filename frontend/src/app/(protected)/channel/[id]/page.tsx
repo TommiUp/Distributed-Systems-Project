@@ -38,9 +38,10 @@ export default function ChannelPage() {
     return token ? { authorization: `Bearer ${token}` } : {};
   };
 
-  // logout by clearing cookie via API route
+  // logout: clear cookie via API and redirect
   const logout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
+    localStorage.removeItem('access_token');   // ← clear the client‐side copy
     router.push('/login');
   };
 
