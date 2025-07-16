@@ -19,7 +19,7 @@ export default function AuthPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  // After login, save the token to localStorage so your client code can read it
+  // After login, save the token as a cookie
   const handleLogin = async () => {
     setError(null);
     if (!username.trim() || !password.trim()) {
