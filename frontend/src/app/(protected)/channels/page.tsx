@@ -1,10 +1,8 @@
-// src/app/(protected)/channels/page.tsx
+// frontend/src/app/(protected)/channels/page.tsx
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
 import * as grpcWeb from 'grpc-web';
-
-import { getToken } from '@/lib/token';
 import { HubServiceClient } from '@/generated/Hub_serviceServiceClientPb';
 import {
   Empty,
@@ -25,20 +23,19 @@ export default function ChannelsPage() {
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Initialize gRPC-Web client with cookies
   const hubClient = useMemo(
-    () => new HubServiceClient(process.env.NEXT_PUBLIC_HUB_HOST!, null, null),
+    () => new HubServiceClient(
+      process.env.NEXT_PUBLIC_HUB_HOST!,
+      null,
+      { withCredentials: true }  // send cookies on gRPC requests
+    ),
     []
   );
 
-  // pull JWT from localStorage and set Authorization header
-  const md = (): grpcWeb.Metadata => {
-    const t = getToken();
-    return t ? { authorization: `Bearer ${t}` } : {};
-  };
-
-  // fetch channels list
+  // Fetch channels list
   const refresh = () => {
-    hubClient.listChannels(new Empty(), md(), (e, res) => {
+    hubClient.listChannels(new Empty(), {}, (e, res) => {
       setLoading(false);
       if (e || !res) {
         setErr('Failed to load channels');
@@ -55,33 +52,40 @@ export default function ChannelsPage() {
 
   useEffect(refresh, [hubClient]);
 
-  // create a new channel
+  // Create a new channel
   const create = () => {
     const name = newName.trim();
     if (!name) return;
-    hubClient.createChannel(new CreateReq().setName(name), md(), (_e, res) => {
-      if (res?.getOk()) {
-        setNewName('');
-        refresh();
-      } else {
-        alert(res?.getMessage() || 'Error creating');
+    hubClient.createChannel(
+      new CreateReq().setName(name),
+      {},
+      (_e, res) => {
+        if (res?.getOk()) {
+          setNewName('');
+          refresh();
+        } else {
+          alert(res?.getMessage() || 'Error creating');
+        }
       }
-    });
+    );
   };
 
-  // delete an existing channel
+  // Delete an existing channel
   const del = (id: string) => {
     if (!confirm(`Delete channel “${id}”?`)) return;
-    hubClient.deleteChannel(new DeleteReq().setId(id), md(), (_e, res) => {
-      if (res?.getOk()) refresh();
-      else alert(res?.getMessage() || 'Error deleting');
-    });
+    hubClient.deleteChannel(
+      new DeleteReq().setId(id),
+      {},
+      (_e, res) => {
+        if (res?.getOk()) refresh();
+        else alert(res?.getMessage() || 'Error deleting');
+      }
+    );
   };
 
-  // logout: clear cookie via API and redirect
+  // Logout: clear cookie via API and redirect
   const logout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
-    localStorage.removeItem('access_token');   // ← clear the client‐side copy
     router.push('/login');
   };
 

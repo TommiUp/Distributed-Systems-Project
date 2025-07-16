@@ -39,11 +39,11 @@ export default function AuthPage() {
     }
 
     const body = await res.json();
-    if (body.success && body.token) {
-      localStorage.setItem('access_token', body.token);
-      router.push('/channels');
+    if (body.success) {
+      // we no longer touch localStorage—just navigate on 200
+      router.push('/channels')
     } else {
-      setError('Login failed');
+      setError('Login failed')
     }
   };
 

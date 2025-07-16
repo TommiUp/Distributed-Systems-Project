@@ -1,4 +1,4 @@
-// src/app/(protected)/channel/[id]/page.tsx
+// frontend/src/app/(protected)/channel/[id]/page.tsx
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
@@ -7,7 +7,6 @@ import { useParams, useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import Link from 'next/link';
 
-import { getToken } from '@/lib/token';
 import { ChatServiceClient } from '@/generated/Chat_serviceServiceClientPb';
 import {
   Init,
@@ -25,48 +24,52 @@ import {
   DeleteReq,
 } from '@/generated/hub_service_pb';
 
-type Msg     = { user: string; text: string; ts: number };
+type Msg = { user: string; text: string; ts: number };
 type Channel = { id: string; name: string };
 
 export default function ChannelPage() {
   const router = useRouter();
   const { id } = useParams() as { id: string };
 
-  // build gRPC metadata from localStorage token
-  const md = (): grpcWeb.Metadata => {
-    const token = getToken();
-    return token ? { authorization: `Bearer ${token}` } : {};
-  };
-
-  // logout: clear cookie via API and redirect
+  // Logout: clear cookie via API and redirect
   const logout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
-    localStorage.removeItem('access_token');   // ← clear the client‐side copy
     router.push('/login');
   };
 
   // Sidebar: load/create/delete channels
-  const [channels, setChannels]       = useState<Channel[]>([]);
-  const [newName, setNewName]         = useState('');
-  const [chanErr, setChanErr]         = useState<string|null>(null);
+  const [channels, setChannels] = useState<Channel[]>([]);
+  const [newName, setNewName] = useState('');
+  const [chanErr, setChanErr] = useState<string | null>(null);
   const [chanLoading, setChanLoading] = useState(true);
 
+  // gRPC-Web clients with cookies
   const hubClient = useMemo(
-    () => new HubServiceClient(process.env.NEXT_PUBLIC_HUB_HOST!, null, null),
+    () => new HubServiceClient(
+      process.env.NEXT_PUBLIC_HUB_HOST!,
+      null,
+      { withCredentials: true }
+    ),
     []
   );
+  const chatClient = useMemo(
+    () => new ChatServiceClient(
+      process.env.NEXT_PUBLIC_CHAT_HOST!,
+      null,
+      { withCredentials: true }
+    ),
+    []
+  );
+
   const fetchChannels = () => {
-    hubClient.listChannels(new Empty(), md(), (e, res) => {
+    hubClient.listChannels(new Empty(), {}, (e, res) => {
       setChanLoading(false);
       if (e || !res) {
         setChanErr('Failed to load channels');
         return;
       }
       setChannels(
-        res.getChannelsList().map((c: ChMsg) => ({
-          id:   c.getId(),
-          name: c.getName(),
-        }))
+        res.getChannelsList().map((c: ChMsg) => ({ id: c.getId(), name: c.getName() }))
       );
     });
   };
@@ -75,7 +78,7 @@ export default function ChannelPage() {
   const createChannel = () => {
     const name = newName.trim();
     if (!name) return;
-    hubClient.createChannel(new CreateReq().setName(name), md(), (_e, res) => {
+    hubClient.createChannel(new CreateReq().setName(name), {}, (_e, res) => {
       if (res?.getOk()) {
         setNewName('');
         fetchChannels();
@@ -87,9 +90,8 @@ export default function ChannelPage() {
 
   const deleteChannel = (cid: string) => {
     if (!confirm(`Delete channel “${cid}”?`)) return;
-    hubClient.deleteChannel(new DeleteReq().setId(cid), md(), (_e, res) => {
+    hubClient.deleteChannel(new DeleteReq().setId(cid), {}, (_e, res) => {
       if (res?.getOk()) {
-        // if we're in that channel, send back to hub
         if (cid === id) router.push('/channels');
         fetchChannels();
       } else {
@@ -100,35 +102,25 @@ export default function ChannelPage() {
 
   // Chat: history + live updates
   const [messages, setMessages] = useState<Msg[]>([]);
-  const [input, setInput]       = useState('');
-
-  const chat = useMemo(
-    () =>
-      new ChatServiceClient(process.env.NEXT_PUBLIC_CHAT_HOST!, null, null),
-    []
-  );
+  const [input, setInput] = useState('');
 
   const push = (m: Msg) => setMessages(p => [...p, m]);
-  const stripUser = (s: string) => s.split(':',1)[0] || 'anon';
-  const stripText = (s: string) => s.slice(s.indexOf(':')+1).trim();
+  const stripUser = (s: string) => s.split(':', 1)[0] || 'anon';
+  const stripText = (s: string) => s.slice(s.indexOf(':') + 1).trim();
 
   useEffect(() => {
-    // redirect if not logged in
-    if (!getToken()) {
-      router.push('/login');
-      return;
-    }
-
     // join & fetch history
-    chat.joinChannel(new JoinReq().setName(id), md(), () => {});
-    chat.getHistory(new HistoryReq().setChannel(id).setLimit(200), md(),
+    chatClient.joinChannel(new JoinReq().setName(id), {}, () => {});
+    chatClient.getHistory(
+      new HistoryReq().setChannel(id).setLimit(200),
+      {},
       (_e, res) => res?.getItemsList().forEach(m =>
         push({ user: stripUser(m.getBody()), text: stripText(m.getBody()), ts: m.getTs() })
       )
     );
 
     // subscribe to live stream
-    const stream = chat.subscribeChat(new Init().setToken(getToken()!), {});
+    const stream = chatClient.subscribeChat(new Init(), {});
     stream.on('data', (e: ServerEnvelope) => {
       if (e.getNotice()) {
         push({ user: 'System', text: e.getNotice()!, ts: Date.now() });
@@ -144,28 +136,26 @@ export default function ChannelPage() {
     });
     stream.on('error', console.error);
     return () => stream.cancel();
-  }, [chat, id, router]);
+  }, [chatClient, id, router]);
 
   const send = () => {
     const body = input.trim();
     if (!body) return;
-    chat.sendChannelMsg(
+    chatClient.sendChannelMsg(
       new ChannelMsg().setChannel(id).setBody(body),
-      md(),
+      {},
       err => err && console.error(err)
     );
     setInput('');
   };
 
-  // timestamp formatting
   const fmt = (ts: number) =>
     dayjs(ts).isSame(dayjs(), 'day')
       ? dayjs(ts).format('HH:mm')
       : dayjs(ts).format('D MMM YYYY HH:mm');
 
-  // render
   if (chanLoading) return <div className="p-4 text-gray-400">Loading…</div>;
-  if (chanErr)     return <div className="p-4 text-red-500">{chanErr}</div>;
+  if (chanErr) return <div className="p-4 text-red-500">{chanErr}</div>;
 
   let lastDate = '';
   return (
@@ -188,11 +178,7 @@ export default function ChannelPage() {
                 {c.name}
               </Link>
               {c.id !== 'Main' && (
-                <button
-                  onClick={() => deleteChannel(c.id)}
-                  className="ml-2 text-gray-500 hover:text-red-500"
-                  title="Delete"
-                >
+                <button onClick={() => deleteChannel(c.id)} className="ml-2 text-gray-500 hover:text-red-500" title="Delete">
                   ✕
                 </button>
               )}
@@ -206,11 +192,7 @@ export default function ChannelPage() {
             placeholder="New channel…"
             className="flex-1 px-3 py-2 rounded bg-[#36393F] text-gray-200 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#7289DA]"
           />
-          <button
-            onClick={createChannel}
-            disabled={!newName.trim() || channels.length >= 8}
-            className="w-10 h-10 flex items-center justify-center bg-[#7289DA] text-white rounded-md hover:bg-[#5b6eae] disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <button onClick={createChannel} disabled={!newName.trim() || channels.length >= 8} className="w-10 h-10 flex items-center justify-center bg-[#7289DA] text-white rounded-md hover:bg-[#5b6eae] disabled:opacity-50 disabled:cursor-not-allowed">
             <span className="text-2xl leading-none">+</span>
           </button>
         </div>
@@ -227,10 +209,10 @@ export default function ChannelPage() {
 
         <div className="flex-1 overflow-y-auto px-4 py-2">
           {messages.map((m, i) => {
-            const dayKey   = dayjs(m.ts).format('YYYY-MM-DD');
+            const dayKey = dayjs(m.ts).format('YYYY-MM-DD');
             const isNotice = m.user === 'System';
-            const showSep  = !isNotice && dayKey !== lastDate;
-            lastDate      = dayKey;
+            const showSep = !isNotice && dayKey !== lastDate;
+            lastDate = dayKey;
 
             return (
               <div key={i} className="mb-4">

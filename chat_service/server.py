@@ -1,6 +1,7 @@
 import os, asyncio, jwt
 from datetime import datetime
 from collections import defaultdict
+import re
 import grpc
 from grpc import aio
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -28,13 +29,32 @@ def ensure_member(user: str, ch: str):
     hub_channel[user] = ch
     hub_members[ch].add(user)
 
+
 def user_from_ctx(ctx) -> str | None:
+    token = None
+
+    # 1) Authorization header (“Bearer …”)
     for k, v in (ctx.invocation_metadata() or []):
-        if k.lower() == "authorization" and v.startswith("Bearer "):
-            try:
-                return jwt.decode(v[7:], SECRET, algorithms=["HS256"])["sub"]
-            except jwt.InvalidTokenError:
-                return None
+        kl = k.lower()
+        if kl == "authorization" and v.startswith("Bearer "):
+            token = v[7:]
+            break
+
+    # 2) If no auth header, look in cookie
+    if not token:
+        for k, v in (ctx.invocation_metadata() or []):
+            if k.lower() == "cookie":
+                m = re.search(r"access_token=([^;]+)", v)
+                if m:
+                    token = m.group(1)
+                    break
+
+    # 3) Decode or return None
+    if token:
+        try:
+            return jwt.decode(token, SECRET, algorithms=["HS256"])["sub"]
+        except jwt.InvalidTokenError:
+            return None
     return None
 
 async def unicast(user: str, env):
@@ -51,9 +71,16 @@ class ChatService(svc.ChatServiceServicer):
 
     # ---------- server stream for browsers ----------
     async def SubscribeChat(self, init: pb.Init, ctx):
-        try:
-            user = jwt.decode(init.token, SECRET, algorithms=["HS256"])["sub"]
-        except jwt.InvalidTokenError:
+        # Prefer init.token, fallback to cookie or auth header
+        user = None
+        if init.token:
+            try:
+                user = jwt.decode(init.token, SECRET, algorithms=["HS256"])["sub"]
+            except jwt.InvalidTokenError:
+                user = None
+        if not user:
+            user = user_from_ctx(ctx)
+        if not user:
             yield pb.ServerEnvelope(notice="Invalid token")
             return
 
@@ -119,7 +146,7 @@ class ChatService(svc.ChatServiceServicer):
                  async for d in cur][::-1]
         return pb.HistoryRes(items=items)
 
-    # ---------- unchanged bidirectional stream for CLI ----------
+    # ---------- bidirectional stream for CLI ----------
     async def Chat(self, req_iter, ctx):
         send_q = asyncio.Queue()
         user   = None
