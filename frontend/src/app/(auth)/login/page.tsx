@@ -17,11 +17,21 @@ export default function AuthPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const router = useRouter();
+
+  // Helper function for clearing fields
+  const clearForm = () => {
+  setError(null);
+  setSuccess(null);
+  setUsername('');
+  setPassword('');
+  };
 
   // After login, save the token as a cookie
   const handleLogin = async () => {
     setError(null);
+    setSuccess(null);
     if (!username.trim() || !password.trim()) {
       setError('Username & password are required');
       return;
@@ -41,14 +51,15 @@ export default function AuthPage() {
     const body = await res.json();
     if (body.success) {
       // we no longer touch localStorage—just navigate on 200
-      router.push('/channels')
+      router.push('/channels');
     } else {
-      setError('Login failed')
+      setError('Login failed');
     }
   };
 
   const handleRegister = () => {
     setError(null);
+    setSuccess(null);
     if (!username.trim() || !password.trim()) {
       setError('Username & password are required');
       return;
@@ -69,7 +80,9 @@ export default function AuthPage() {
       }
       // After register, switch to login mode
       setMode('login');
-      setError('✅ Registered! You can now log in.');
+      setError(null);
+      setSuccess('✅ Registered! You can now log in.');
+      setUsername('');
       setPassword('');
     });
   };
@@ -89,7 +102,7 @@ export default function AuthPage() {
                 ? 'bg-[#202225] text-white'
                 : 'bg-transparent text-gray-400 hover:text-white'
             }`}
-            onClick={() => { setMode('login'); setError(null); }}
+            onClick={() => { setMode('login'); clearForm(); }}
           >
             Login
           </button>
@@ -99,7 +112,7 @@ export default function AuthPage() {
                 ? 'bg-[#202225] text-white'
                 : 'bg-transparent text-gray-400 hover:text-white'
             }`}
-            onClick={() => { setMode('register'); setError(null); }}
+            onClick={() => { setMode('register'); clearForm(); }}
           >
             Register
           </button>
@@ -115,8 +128,9 @@ export default function AuthPage() {
             : 'Join us—your data is safe with us.'}
         </p>
 
-        {/* Error */}
+        {/* Messages */}
         {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
+        {success && <div className="text-green-500 text-sm mb-4">{success}</div>}
 
         {/* Form */}
         <div className="space-y-4">
@@ -165,7 +179,7 @@ export default function AuthPage() {
             className="text-[#7289DA] hover:underline"
             onClick={() => {
               setMode(prev => (prev === 'login' ? 'register' : 'login'));
-              setError(null);
+              clearForm();
             }}
           >
             {mode === 'login' ? 'Register' : 'Login'}

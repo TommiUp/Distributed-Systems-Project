@@ -2,6 +2,7 @@ import os, time, jwt, grpc
 from concurrent import futures
 from collections import OrderedDict
 from dotenv import load_dotenv
+from urllib.parse import quote, unquote
 
 # ─────────────────── synchronous Mongo helper ────────────────────
 from pymongo import MongoClient
@@ -67,18 +68,33 @@ class HubService(HubServiceServicer):
             return BoolRes(ok=False, message="Channel exists.")
         if len(channels) >= MAX_CHANNELS:
             return BoolRes(ok=False, message=f"Channel limit reached ({MAX_CHANNELS}).")
-        channels[name] = f"{name} Channel"
+        channels[name] = f"{name}"
         return BoolRes(ok=True,  message="Channel created.")
 
     def DeleteChannel(self, req: DeleteReq, ctx):
-        if req.id == "Main":
+        raw_id = req.id
+        decoded_id = unquote(raw_id)
+        encoded_id = quote(decoded_id, safe="")
+
+        if decoded_id == "Main":
             return BoolRes(ok=False, message="Cannot delete Main.")
-        if channels.pop(req.id, None) is None:
+
+        if channels.pop(decoded_id, None) is None:
             return BoolRes(ok=False, message="Channel not found.")
 
-        # -------- HARD-DELETE chat history here -----------------------
-        result = messages.delete_many({"channel": req.id})
-        print(f"[hub] deleted {result.deleted_count} docs for channel “{req.id}”")
+        result = messages.delete_many({
+            "$or": [
+                {"channel": decoded_id},
+                {"channel": encoded_id},
+                {"channel": raw_id},
+                {"channel": f"{decoded_id} Channel"},  # optional legacy cleanup
+            ]
+        })
+
+        print(
+            f"[hub] deleted {result.deleted_count} docs for channel "
+            f"raw={raw_id!r}, decoded={decoded_id!r}, encoded={encoded_id!r}"
+        )
 
         return BoolRes(ok=True, message="Channel deleted and history purged.")
 

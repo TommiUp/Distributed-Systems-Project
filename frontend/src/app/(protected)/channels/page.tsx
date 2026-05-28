@@ -22,6 +22,7 @@ export default function ChannelsPage() {
   const [newName, setNewName] = useState('');
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState<Channel | null>(null);
 
   // Initialize gRPC-Web client with cookies
   const hubClient = useMemo(
@@ -71,14 +72,20 @@ export default function ChannelsPage() {
   };
 
   // Delete an existing channel
-  const del = (id: string) => {
-    if (!confirm(`Delete channel “${id}”?`)) return;
+  const del = () => {
+    if (!deleteTarget) return;
+
     hubClient.deleteChannel(
-      new DeleteReq().setId(id),
+      new DeleteReq().setId(deleteTarget.id),
       {},
       (_e, res) => {
-        if (res?.getOk()) refresh();
-        else alert(res?.getMessage() || 'Error deleting');
+        if (res?.getOk()) {
+          setDeleteTarget(null);
+          refresh();
+        } else {
+          setErr(res?.getMessage() || 'Error deleting');
+          setDeleteTarget(null);
+        }
       }
     );
   };
@@ -112,7 +119,7 @@ export default function ChannelsPage() {
           {channels.map((c) => (
             <div key={c.id} className="flex items-center">
               <Link
-                href={`/channel/${c.id}`}
+                href={`/channel/${encodeURIComponent(c.id)}`}
                 className="
                   flex-1 px-3 py-2 rounded-md
                   text-gray-300 hover:bg-[#40444b] hover:text-white
@@ -123,7 +130,7 @@ export default function ChannelsPage() {
               </Link>
               {c.id !== 'Main' && (
                 <button
-                  onClick={() => del(c.id)}
+                  onClick={() => setDeleteTarget(c)}
                   className="ml-2 text-gray-500 hover:text-red-500"
                   title="Delete"
                 >
@@ -164,6 +171,36 @@ export default function ChannelsPage() {
       <main className="flex-1 flex items-center justify-center text-gray-400">
         Select a channel on the left to chat.
       </main>
+
+      {deleteTarget && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-[#36393F] rounded-lg shadow-xl p-6 w-full max-w-sm">
+            <h3 className="text-white text-lg font-bold mb-2">
+              Delete channel?
+            </h3>
+
+            <p className="text-gray-300 text-sm mb-6">
+              Are you sure you want to delete #{deleteTarget.name}? This will also delete its chat history.
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                className="px-4 py-2 rounded bg-[#202225] text-gray-300 hover:text-white"
+              >
+                No
+              </button>
+
+              <button
+                onClick={del}
+                className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+              >
+                Yes, delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

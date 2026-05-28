@@ -29,7 +29,8 @@ type Channel = { id: string; name: string };
 
 export default function ChannelPage() {
   const router = useRouter();
-  const { id } = useParams() as { id: string };
+  const params = useParams() as { id: string };
+  const id = decodeURIComponent(params.id);
 
   // Logout: clear cookie via API and redirect
   const logout = async () => {
@@ -42,6 +43,7 @@ export default function ChannelPage() {
   const [newName, setNewName] = useState('');
   const [chanErr, setChanErr] = useState<string | null>(null);
   const [chanLoading, setChanLoading] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState<Channel | null>(null);
 
   // gRPC-Web clients with cookies
   const hubClient = useMemo(
@@ -88,14 +90,23 @@ export default function ChannelPage() {
     });
   };
 
-  const deleteChannel = (cid: string) => {
-    if (!confirm(`Delete channel “${cid}”?`)) return;
+  const deleteChannel = () => {
+    if (!deleteTarget) return;
+
+    const cid = deleteTarget.id;
+
     hubClient.deleteChannel(new DeleteReq().setId(cid), {}, (_e, res) => {
       if (res?.getOk()) {
-        if (cid === id) router.push('/channels');
+        setDeleteTarget(null);
+
+        if (cid === id) {
+          router.push('/channels');
+        }
+
         fetchChannels();
       } else {
-        alert(res?.getMessage() || 'Error deleting');
+        setChanErr(res?.getMessage() || 'Error deleting');
+        setDeleteTarget(null);
       }
     });
   };
@@ -110,7 +121,7 @@ export default function ChannelPage() {
 
   useEffect(() => {
     // join & fetch history
-    chatClient.joinChannel(new JoinReq().setName(id), {}, () => {});
+    chatClient.joinChannel(new JoinReq().setName(id), {}, () => { });
     chatClient.getHistory(
       new HistoryReq().setChannel(id).setLimit(200),
       {},
@@ -172,13 +183,13 @@ export default function ChannelPage() {
           {channels.map(c => (
             <div key={c.id} className="flex items-center">
               <Link
-                href={`/channel/${c.id}`}
+                href={`/channel/${encodeURIComponent(c.id)}`}
                 className="flex-1 px-3 py-2 rounded-md text-gray-300 hover:bg-[#40444b] hover:text-white transition"
               >
                 {c.name}
               </Link>
               {c.id !== 'Main' && (
-                <button onClick={() => deleteChannel(c.id)} className="ml-2 text-gray-500 hover:text-red-500" title="Delete">
+                <button onClick={() => setDeleteTarget(c)} className="ml-2 text-gray-500 hover:text-red-500" title="Delete">
                   ✕
                 </button>
               )}
@@ -246,6 +257,37 @@ export default function ChannelPage() {
           </button>
         </div>
       </main>
+
+
+      {deleteTarget && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-[#36393F] rounded-lg shadow-xl p-6 w-full max-w-sm">
+            <h3 className="text-white text-lg font-bold mb-2">
+              Delete channel?
+            </h3>
+
+            <p className="text-gray-300 text-sm mb-6">
+              Are you sure you want to delete #{deleteTarget.name}? This will also delete its chat history.
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                className="px-4 py-2 rounded bg-[#202225] text-gray-300 hover:text-white"
+              >
+                No
+              </button>
+
+              <button
+                onClick={deleteChannel}
+                className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+              >
+                Yes, delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
